@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-04 17:39:39
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-07-04 18:30:05
+* @Last Modified time: 2019-07-04 19:25:30
 */
 
 #ifndef _utils_cpp_
@@ -24,6 +24,10 @@ void print_nested_vector(std::vector<std::vector<T>> nvec);
 // function to print a map.
 template <typename T>
 void print_map(std::unordered_map<std::string, T> map);
+
+// function to print a map.
+template <typename T>
+void print_map_vector(std::unordered_map<std::string, std::vector<T>> map);
 
 // function to check whether a key is present in an unordered map.
 bool check_key(std::unordered_map<std::string, int> m, std::string k);
@@ -59,6 +63,23 @@ void print_map(std::unordered_map<std::string, T> map){
     std::cout << element.first << " :: " << element.second << std::endl;
   }
 }
+
+
+// function to print a map.
+template <typename T>
+void print_map_vector(std::unordered_map<std::string, std::vector<T>> map)
+{
+  for (std::pair<std::string, std::vector<T>> element : map)
+  {
+    std::cout << element.first << " :: ";
+    for(auto i: element.second) 
+    {
+      std::cout << i << " ";
+    }
+    std::cout << std::endl;
+  }
+}
+
 
 
 bool check_key(std::unordered_map<std::string, int> m, std::string k){
