@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-04 17:39:39
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-07-04 19:25:30
+* @Last Modified time: 2019-07-05 16:24:16
 */
 
 #ifndef _utils_cpp_
@@ -10,6 +10,7 @@
 
 #include <unordered_map> 
 #include <vector>
+#include <numeric> // iota
 
 /* declarations. */
 
@@ -31,6 +32,10 @@ void print_map_vector(std::unordered_map<std::string, std::vector<T>> map);
 
 // function to check whether a key is present in an unordered map.
 bool check_key(std::unordered_map<std::string, int> m, std::string k);
+
+// Argsort function.
+template <class T>
+std::vector<int> argsort(const std::vector<T> & unsorted);
 
 
 
@@ -88,6 +93,23 @@ bool check_key(std::unordered_map<std::string, int> m, std::string k){
     return false; 
   }
   return true;
+}
+
+
+/*
+  Argsort.
+*/
+template <class T>
+std::vector<int> argsort(const std::vector<T> & unsorted){
+
+  // Generate index vector.
+  std::vector<int> index_sorted(unsorted.size());
+  std::iota(index_sorted.begin(), index_sorted.end(), 0);
+  // Sort the index vector, using unsorted for comparison
+  std::sort(index_sorted.begin(), index_sorted.end(), 
+    [&](int i1, int i2) { return unsorted[i1] < unsorted[i2]; });
+
+  return index_sorted;
 }
 
 #endif
