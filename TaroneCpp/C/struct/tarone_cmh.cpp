@@ -2,7 +2,7 @@
 * @Author: Anja Gumpinger
 * @Date:   2018-11-13 19:32:54
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-07-05 16:40:21
+* @Last Modified time: 2019-07-08 12:44:17
 */
 
 #ifndef _tarone_cmh_cpp_
@@ -20,7 +20,9 @@
   Main TaroneCMH.
 */
 class TaroneCMH{
+
 public:
+  // Public members are accessible by anyone calling the function.
 
   // target family-wise error rate.
   double target_fwer;
@@ -31,51 +33,59 @@ public:
   // Vectors containing the number of samples/cases per covariate.
   Eigen::VectorXd pt_samples;
   Eigen::VectorXd pt_cases;
-
-  // helpers to compute the CMH statistics.
-  std::vector<double> gammat;
-  std::vector<double> gammabint;
-  std::vector<int> hypercorner_bnd;
-
-  // The index pointing to the current threshold.
-  int idx_t;  
-
-  // vector to keep track of the frequency counts.
-  std::vector<int> freq_counts;
-
-  // Number of testable/enumerated/significant itemsets.
-  long long n_testable = 0;
-  long long n_enumerated = 0;
-  long long n_significant = 0;
     
   // constructor.
   TaroneCMH (double, Eigen::VectorXd, Eigen::VectorXd);
     
-  // Declare member functions.
+  // Functions to compute the current thresholds.
   double delta_t();
   double corr_threshold();
-  void decrease_threshold();
-  void process_testable(double min_pv);
+  long long n_testable();
+  
+  // Functions to assess and process testability of a itemset.
+  double compute_minpval(Eigen::VectorXd x);
   bool is_testable(double min_pv);
+  void process_testable(double min_pv);
   bool is_prunable(Eigen::VectorXd x);
   double compute_pval(int a, Eigen::VectorXd x);
-  double compute_minpval(Eigen::VectorXd x);
-  void write_summary(std::string filename);
 
-private:
+  // Function to write a summary of the tarone run.
+  void write_summary(std::string filename, long long n_enumerated, 
+                     long long n_significant);
+
+protected:
+  // Protected members are accessible by the class itself and any class 
+  // inheriting.
+
+  // The index pointing to the current threshold.
+  int idx_t; 
+
+  // vector to keep track of the frequency counts.
+  std::vector<int> freq_counts;
 
   // Parameters to compute the p-value grid.
   double NGRID; 
   double LOG10_MIN_PVAL;
   double log10_p_step;
 
+  // helpers to compute the CMH statistics.
+  std::vector<double> gammat;
+  std::vector<double> gammabint;
+  std::vector<int> hypercorner_bnd;
+
   // The grid of p-values.
   std::vector<double> pgrid;
 
   void init_pvalue_grid();
   void init_cmh_helpers();
-  void init_pval_count();
+  void init_freq_count();
   int bucket_idx(double pval);
+  void decrease_threshold();
+
+private:
+  // Private members are accessible by the class itself.
+
+  void process_testable_spec(double min_pv);
 
 };
 
@@ -104,7 +114,7 @@ TaroneCMH::TaroneCMH (double alpha, Eigen::VectorXd per_table_samples,
   init_cmh_helpers();
 
   // init the vector counting how often a p-value has occurred.
-  init_pval_count();
+  init_freq_count();
 
   // initialize the index pointing to the threshold.
   idx_t = 1; 
@@ -122,16 +132,30 @@ double TaroneCMH::delta_t()
 
 
 /*
-  Returns the current testability threshold.
+  Returns the corrected significance threshold.
 */ 
 double TaroneCMH::corr_threshold()
 {
-  if (n_testable == 0)
+  if (n_testable() == 0)
   {
     return target_fwer;
   }else{
-    return target_fwer / n_testable;  
+    return target_fwer / n_testable();  
   }
+}
+
+
+/* 
+  Computes the number of testable items.
+*/
+long long TaroneCMH::n_testable()
+{
+  long long count = 0;
+  for (int i=idx_t+1; i<freq_counts.size(); i++)
+  {
+    count += freq_counts[i];
+  }
+  return count;
 }
 
 
@@ -139,7 +163,7 @@ double TaroneCMH::corr_threshold()
   Inits the vector that will keep track of the counts of itemsets that are
   testable at a given threshold.
 */
-void TaroneCMH::init_pval_count()
+void TaroneCMH::init_freq_count()
 {
   for (int i=0; i<=NGRID; i++) 
   {
@@ -189,21 +213,30 @@ void TaroneCMH::init_cmh_helpers()
 */
 void TaroneCMH::process_testable(double min_pv)
 {
+  // Call the private function to do the method-specific processing of a 
+  // testable itemset.
+  process_testable_spec(min_pv);
+}
+
+
+/*
+  Processes a testable itemset in the method-dependent fashion.
+*/
+void TaroneCMH::process_testable_spec(double min_pv)
+{
   // Compute the bucket index.
   int idx = bucket_idx(min_pv);
 
   // Increase the count vector of testable items at the threshold.
   freq_counts[idx] += 1;
 
-  // Increase the number of testable items.
-  n_testable += 1; 
-
   // Check FWER criterion.
-  while (n_testable * delta_t() > target_fwer)
+  while (n_testable() * delta_t() > target_fwer)
   {
     decrease_threshold();
   }
 }
+
 
 
 /*
@@ -211,10 +244,7 @@ void TaroneCMH::process_testable(double min_pv)
 */
 void TaroneCMH::decrease_threshold()
 {
-  // remove the newly untestable items from the testable count.
-  n_testable -= freq_counts[idx_t];
-
-  // increase the pointer by one.
+  // increase the pointer by one, thereby lowering the threshold.
   idx_t += 1; 
 }
 
@@ -414,7 +444,8 @@ bool TaroneCMH::is_prunable(Eigen::VectorXd x)
 }
 
 
-void TaroneCMH::write_summary(std::string filename)
+void TaroneCMH::write_summary(std::string filename, long long n_enumerated,
+                              long long n_significant)
 {
 
   std::ofstream file(filename);
@@ -436,7 +467,7 @@ void TaroneCMH::write_summary(std::string filename)
   // Tarone results.
   file << "Tarone results:" << std::endl;
   file << "Number enumerated: " << n_enumerated << std::endl;
-  file << "Number testable: " << n_testable << std::endl;
+  file << "Number testable: " << n_testable() << std::endl;
   file << "Testability threshold: " << delta_t() << std::endl;
   file << "Target fwer: " << target_fwer << std::endl;
   file << "Significance threshold: " << corr_threshold() << std::endl;
