@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-04 17:39:39
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-07-05 16:24:16
+* @Last Modified time: 2019-07-08 15:32:52
 */
 
 #ifndef _utils_cpp_
@@ -36,6 +36,13 @@ bool check_key(std::unordered_map<std::string, int> m, std::string k);
 // Argsort function.
 template <class T>
 std::vector<int> argsort(const std::vector<T> & unsorted);
+
+// Transforms a std::vector to an Eigen::Vector;
+template <class T>
+Eigen::VectorXd vec_to_eigen(const std::vector<T>&  x);
+
+// Transforms an Eigen::Vector to a std::vector;
+std::vector<int> eigen_to_vec(const Eigen::VectorXd& x);
 
 
 
@@ -110,6 +117,36 @@ std::vector<int> argsort(const std::vector<T> & unsorted){
     [&](int i1, int i2) { return unsorted[i1] < unsorted[i2]; });
 
   return index_sorted;
+}
+
+
+/*
+  Transform an Eigen::VectorXd to a std::vector.
+*/
+
+std::vector<int> eigen_to_vec(const Eigen::VectorXd& x)
+{
+  std::vector<int> y;
+  for(int i=0; i<x.size(); i++) 
+  {
+    y.push_back(x[i]);
+  }
+  return y;
+}
+
+
+/*
+  Transform an std::vector to an Eigen::VectorXd.
+*/
+template <class T>
+Eigen::VectorXd vec_to_eigen(const std::vector<T>&  x)
+{
+  Eigen::VectorXd y(x.size());
+  for(int i=0; i<x.size(); i++) 
+    {
+      y(i) = x[i];
+    }
+  return y;
 }
 
 #endif
