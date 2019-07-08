@@ -2,7 +2,7 @@
 * @Author: Anja Gumpinger
 * @Date:   2018-11-12 13:57:32
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-07-08 13:18:22
+* @Last Modified time: 2019-07-08 17:02:38
 */
 
 #ifndef _data_cpp_
@@ -38,10 +38,6 @@ public:
   // Vectors storing the number of samples and cases per covariate class.
   Eigen::VectorXd pt_samples;
   Eigen::VectorXd pt_cases;
-
-  // The cumulative sum of the samples per table. Helper to compute the CMH
-  // test later (maybe this should be moved to the TaroneCMH class).
-  Eigen::VectorXd pt_samples_cumsum;
  
   // Empty constructor for initialization.
   Data() = default;
@@ -65,7 +61,6 @@ private:
   std::vector<int> load_covar(std::string filename, long long n_samples);
 
   // Functions to initialize the different data metrics.
-  void init_cumsum();
   void init_cases();
   void init_covar(std::vector<int> tmp_covar, std::vector<int> sort_vec);
   
@@ -209,20 +204,6 @@ void Data::init_covar(std::vector<int> tmp_covar,
   classes.push_back(tmp_count);
   pt_samples = Eigen::VectorXd::Zero(classes.size());
   for (int i=0; i<classes.size(); i++) pt_samples[i] = classes[i];
-}
-
-
-/*
-  Create the cummulative sum of number of samples per covariate class.
-*/
-void Data::init_cumsum()
-{
-  pt_samples_cumsum = Eigen::VectorXd::Zero(n_covar);
-  pt_samples_cumsum(0) = pt_samples(0);
-  for (int i=1; i<pt_samples_cumsum.rows(); i++)
-  {
-    pt_samples_cumsum(i) = pt_samples(i) + pt_samples_cumsum(i-1);
-  }
 }
 
 

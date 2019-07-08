@@ -2,7 +2,7 @@
 * @Author: Anja Gumpinger
 * @Date:   2018-11-13 19:32:54
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-07-08 12:44:17
+* @Last Modified time: 2019-07-08 18:13:32
 */
 
 #ifndef _tarone_cmh_cpp_
@@ -35,7 +35,8 @@ public:
   Eigen::VectorXd pt_cases;
     
   // constructor.
-  TaroneCMH (double, Eigen::VectorXd, Eigen::VectorXd);
+  TaroneCMH (double alpha, Eigen::VectorXd per_table_samples, 
+                      Eigen::VectorXd per_table_cases);
     
   // Functions to compute the current thresholds.
   double delta_t();
@@ -43,11 +44,14 @@ public:
   long long n_testable();
   
   // Functions to assess and process testability of a itemset.
-  double compute_minpval(Eigen::VectorXd x);
+  double compute_minpval(Eigen::VectorXd pt_support);
   bool is_testable(double min_pv);
   void process_testable(double min_pv);
   bool is_prunable(Eigen::VectorXd x);
-  double compute_pval(int a, Eigen::VectorXd x);
+  double compute_supported_cases(const Eigen::MatrixXd& support, 
+                                 const Eigen::VectorXd& labels);
+  Eigen::VectorXd compute_per_table_support(Eigen::MatrixXd support);
+  double compute_pval(int a, Eigen::VectorXd pt_support);
 
   // Function to write a summary of the tarone run.
   void write_summary(std::string filename, long long n_enumerated, 
@@ -63,6 +67,9 @@ protected:
   // vector to keep track of the frequency counts.
   std::vector<int> freq_counts;
 
+  // vector containing the cumsum of the samples.
+  Eigen::VectorXd pt_samples_cumsum;
+
   // Parameters to compute the p-value grid.
   double NGRID; 
   double LOG10_MIN_PVAL;
@@ -76,6 +83,7 @@ protected:
   // The grid of p-values.
   std::vector<double> pgrid;
 
+  void init_cumsum();
   void init_pvalue_grid();
   void init_cmh_helpers();
   void init_freq_count();
@@ -106,6 +114,9 @@ TaroneCMH::TaroneCMH (double alpha, Eigen::VectorXd per_table_samples,
   // set the samples/cases per covariate class.
   pt_samples = per_table_samples;
   pt_cases = per_table_cases;
+
+  // init the cumsum of samples.
+  init_cumsum();
 
   // init the p-value grid.
   init_pvalue_grid();
@@ -209,6 +220,20 @@ void TaroneCMH::init_cmh_helpers()
 
 
 /*
+  Create the cummulative sum of number of samples per covariate class.
+*/
+void TaroneCMH::init_cumsum()
+{
+  pt_samples_cumsum = Eigen::VectorXd::Zero(n_cov);
+  pt_samples_cumsum(0) = pt_samples(0);
+  for (int i=1; i<pt_samples_cumsum.rows(); i++)
+  {
+    pt_samples_cumsum(i) = pt_samples(i) + pt_samples_cumsum(i-1);
+  }
+}
+
+
+/*
   Process a testable itemset.
 */
 void TaroneCMH::process_testable(double min_pv)
@@ -281,6 +306,46 @@ int TaroneCMH::bucket_idx(double pval)
 
 
 /*
+  Compute the cell-count 'a' in the contingency table, i.e. those cases that
+  have support = 1.
+*/
+double TaroneCMH::compute_supported_cases(const Eigen::MatrixXd& support, 
+                                          const Eigen::VectorXd& labels)
+{
+  long long a = 0;
+  for (int i=0; i<labels.rows(); i++) 
+  {
+    if (labels(i) && support(i)) 
+      {
+        a++;
+      }
+  }
+  return a;
+}
+
+
+/*
+  Compute the per-table support.
+*/
+Eigen::VectorXd TaroneCMH::compute_per_table_support(Eigen::MatrixXd support)
+{
+  int k = 0;
+  Eigen::VectorXd pt_support = Eigen::VectorXd::Zero(n_cov);
+  for (int i=0; i<pt_samples.sum(); i++)
+  {
+    if (support(0, i) == 1) 
+    {
+      pt_support(k) += 1;
+    }
+    if (i+1 == pt_samples_cumsum(k)) 
+      {
+        k += 1;
+      }
+  }
+  return pt_support;
+}
+
+/*
   Compute the CMH-test p-value.
 */
 double TaroneCMH::compute_pval(int a, Eigen::VectorXd x)
@@ -309,9 +374,13 @@ double TaroneCMH::compute_pval(int a, Eigen::VectorXd x)
 */
 double TaroneCMH::compute_minpval(Eigen::VectorXd x)
 {
+  // Holds the numerator of T_amin
   double left_tail_num = 0; 
+  // Holds the numberator of T_amax
   double right_tail_num = 0; 
+  // Holds the denominator.
   double den = 0;
+  // Auxiliaries for computation of T-scores.
   double aux1, aux2;
 
   for(int k=0; k<x.rows(); k++)
