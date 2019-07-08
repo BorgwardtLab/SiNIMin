@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-04 18:40:57
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-07-04 19:22:45
+* @Last Modified time: 2019-07-08 12:13:10
 */
 
 /* Mapping class.
@@ -110,9 +110,8 @@ void Mapping::read_mapping(std::string map_file)
 
 
 /*
-  Translates the SNP-IDs to their position.
+  Translates the SNP-IDs to their position given in the snp_ordering file.
 */
-
 void Mapping::translate_snp_ids(std::vector<std::string> snp_ordering)
 {
 
