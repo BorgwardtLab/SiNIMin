@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-04 17:39:39
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-07-08 15:32:52
+* @Last Modified time: 2019-07-09 18:12:03
 */
 
 #ifndef _utils_cpp_
@@ -44,6 +44,11 @@ Eigen::VectorXd vec_to_eigen(const std::vector<T>&  x);
 // Transforms an Eigen::Vector to a std::vector;
 std::vector<int> eigen_to_vec(const Eigen::VectorXd& x);
 
+// Compute the binary or between two vectors (matrices).
+Eigen::MatrixXd binary_or(Eigen::MatrixXd vec0, Eigen::MatrixXd vec1);
+
+// Check if a file exists.
+void check_file(std::string filename);
 
 
 /* Functions. */
@@ -148,5 +153,41 @@ Eigen::VectorXd vec_to_eigen(const std::vector<T>&  x)
     }
   return y;
 }
+
+
+/*
+ Compute the binary or between two Matrices of dimension (1, n_samples).
+*/
+Eigen::MatrixXd binary_or(Eigen::MatrixXd vec0, Eigen::MatrixXd vec1)
+{
+  // Add the two matrices.
+  Eigen::MatrixXd sum_vec0_vec1 = vec0 + vec1;
+
+  Eigen::MatrixXd vec_binary = Eigen::MatrixXd::Zero(vec0.rows(), vec0.cols());
+
+  for (int i=0; i<vec_binary.cols(); i++)
+  {
+    if (sum_vec0_vec1(0, i) > 0)
+    {
+      vec_binary(0,i) = 1;
+    }
+  }
+  return vec_binary;
+}
+
+
+/*
+  Check if an input-file exists. Throw an error if not.
+*/
+
+void check_file(std::string filename){
+  std::ifstream f(filename);
+  if (!f.is_open()){
+    std::cerr << "Error @ check_file: Unable to open file " << filename;
+    std::cerr << std::endl;
+    exit(-1);
+  }
+}
+
 
 #endif
