@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-04 17:19:08
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-07-04 19:27:12
+* @Last Modified time: 2019-07-09 09:50:05
 */
 
 // Include standard libs.
@@ -38,7 +38,7 @@ int main(int argc, char** argv)
   std::cout << "# nodes: " << edge_class.n_nodes << std::endl;
   std::cout << "# edges: " << edge_class.n_edges << std::endl;
   std::cout << "1. Egdes with string names ";
-  std::cout << "(no duplicates/symmetries, no self-loops." << std::endl;
+  std::cout << "(no duplicates/symmetries, no self-loops)." << std::endl;
   print_nested_vector(edge_class.edges_str);
   std::cout << "2. Egdes with integer names " << std::endl;;
   print_nested_vector(edge_class.edges_int);
