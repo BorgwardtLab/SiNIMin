@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-04 16:56:06
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-07-04 18:35:17
+* @Last Modified time: 2019-07-09 18:15:29
 */
 
 
@@ -73,6 +73,8 @@ private:
 
 
 Edges::Edges(std::string edge_fn){
+
+  check_file(edge_fn);
 
   read_edges(edge_fn);
   remove_duplicate_edges();

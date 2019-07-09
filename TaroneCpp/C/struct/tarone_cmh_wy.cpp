@@ -2,7 +2,7 @@
 * @Author: Anja Gumpinger
 * @Date:   2018-11-13 19:32:54
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-07-08 18:27:59
+* @Last Modified time: 2019-07-09 15:16:04
 */
 
 #ifndef _tarone_cmh_wy_cpp_
@@ -59,6 +59,7 @@ class TaroneCMHwy: public TaroneCMH
     std::vector<double> perm_pvalues;
 
     // Constructor.
+    TaroneCMHwy() = default;
     TaroneCMHwy (double alpha, Eigen::VectorXd per_table_samples, 
                  Eigen::VectorXd per_table_cases, int n_permutations);
 

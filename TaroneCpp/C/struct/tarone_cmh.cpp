@@ -2,7 +2,7 @@
 * @Author: Anja Gumpinger
 * @Date:   2018-11-13 19:32:54
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-07-08 18:13:32
+* @Last Modified time: 2019-07-09 15:37:42
 */
 
 #ifndef _tarone_cmh_cpp_
@@ -21,79 +21,82 @@
 */
 class TaroneCMH{
 
-public:
-  // Public members are accessible by anyone calling the function.
+  public:
+    // Public members are accessible by anyone calling the function.
 
-  // target family-wise error rate.
-  double target_fwer;
+    // target family-wise error rate.
+    double target_fwer;
 
-  // Number of covariates.
-  int n_cov;
+    // Number of covariates.
+    int n_cov;
 
-  // Vectors containing the number of samples/cases per covariate.
-  Eigen::VectorXd pt_samples;
-  Eigen::VectorXd pt_cases;
+    // Vectors containing the number of samples/cases per covariate.
+    Eigen::VectorXd pt_samples;
+    Eigen::VectorXd pt_cases;
+      
+    // Default constructor.
+    TaroneCMH() = default;
+
+    // Constructor with data input.
+    TaroneCMH (double alpha, Eigen::VectorXd per_table_samples, 
+               Eigen::VectorXd per_table_cases);
+      
+    // Functions to compute the current thresholds.
+    double delta_t();
+    double corr_threshold();
+    long long n_testable();
     
-  // constructor.
-  TaroneCMH (double alpha, Eigen::VectorXd per_table_samples, 
-                      Eigen::VectorXd per_table_cases);
-    
-  // Functions to compute the current thresholds.
-  double delta_t();
-  double corr_threshold();
-  long long n_testable();
-  
-  // Functions to assess and process testability of a itemset.
-  double compute_minpval(Eigen::VectorXd pt_support);
-  bool is_testable(double min_pv);
-  void process_testable(double min_pv);
-  bool is_prunable(Eigen::VectorXd x);
-  double compute_supported_cases(const Eigen::MatrixXd& support, 
-                                 const Eigen::VectorXd& labels);
-  Eigen::VectorXd compute_per_table_support(Eigen::MatrixXd support);
-  double compute_pval(int a, Eigen::VectorXd pt_support);
+    // Functions to assess and process testability of a itemset.
+    double compute_minpval(Eigen::VectorXd pt_support);
+    bool is_testable(double min_pv);
+    void process_testable(double min_pv);
+    bool is_prunable(Eigen::VectorXd x);
+    double compute_supported_cases(const Eigen::MatrixXd& support, 
+                                   const Eigen::VectorXd& labels);
+    Eigen::VectorXd compute_per_table_support(Eigen::MatrixXd support);
+    double compute_pval(int a, Eigen::VectorXd pt_support);
 
-  // Function to write a summary of the tarone run.
-  void write_summary(std::string filename, long long n_enumerated, 
-                     long long n_significant);
+    // Function to write a summary of the tarone run.
+    void write_summary(std::string filename, long long n_enumerated, 
+                       long long n_significant);
 
-protected:
-  // Protected members are accessible by the class itself and any class 
-  // inheriting.
+  protected:
+    // Protected members are accessible by the class itself and any class 
+    // inheriting.
 
-  // The index pointing to the current threshold.
-  int idx_t; 
+    // The index pointing to the current threshold.
+    int idx_t; 
 
-  // vector to keep track of the frequency counts.
-  std::vector<int> freq_counts;
+    // vector to keep track of the frequency counts.
+    std::vector<int> freq_counts;
 
-  // vector containing the cumsum of the samples.
-  Eigen::VectorXd pt_samples_cumsum;
+    // vector containing the cumsum of the samples.
+    Eigen::VectorXd pt_samples_cumsum;
 
-  // Parameters to compute the p-value grid.
-  double NGRID; 
-  double LOG10_MIN_PVAL;
-  double log10_p_step;
+    // Parameters to compute the p-value grid.
+    double NGRID; 
+    double LOG10_MIN_PVAL;
+    double log10_p_step;
 
-  // helpers to compute the CMH statistics.
-  std::vector<double> gammat;
-  std::vector<double> gammabint;
-  std::vector<int> hypercorner_bnd;
+    // helpers to compute the CMH statistics.
+    std::vector<double> gammat;
+    std::vector<double> gammabint;
+    std::vector<int> hypercorner_bnd;
 
-  // The grid of p-values.
-  std::vector<double> pgrid;
+    // The grid of p-values.
+    std::vector<double> pgrid;
 
-  void init_cumsum();
-  void init_pvalue_grid();
-  void init_cmh_helpers();
-  void init_freq_count();
-  int bucket_idx(double pval);
-  void decrease_threshold();
+    void init_cumsum();
+    void init_pvalue_grid();
+    void init_cmh_helpers();
+    void init_freq_count();
+    int bucket_idx(double pval);
+    void decrease_threshold();
 
-private:
-  // Private members are accessible by the class itself.
+  private:
+    // Private members are accessible by the class itself.
 
-  void process_testable_spec(double min_pv);
+    void process_testable_spec(double min_pv);
 
 };
 

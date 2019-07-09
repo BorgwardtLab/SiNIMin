@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-04 18:40:57
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-07-08 12:13:10
+* @Last Modified time: 2019-07-09 18:15:24
 */
 
 /* Mapping class.
@@ -67,6 +67,7 @@ private:
 Mapping::Mapping(std::string map_file)
 {
 
+  check_file(map_file);
   read_mapping(map_file);
   
 }

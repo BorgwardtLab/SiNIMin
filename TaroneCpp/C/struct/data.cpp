@@ -2,7 +2,7 @@
 * @Author: Anja Gumpinger
 * @Date:   2018-11-12 13:57:32
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-07-09 09:39:15
+* @Last Modified time: 2019-07-09 18:13:38
 */
 
 #ifndef _data_cpp_
@@ -81,6 +81,12 @@ Data::Data(std::string data_fn, std::string labels_fn, std::string snp_id_fn,
            std::string covar_fn)
 {
 
+  // Check if the input files exist.
+  check_file(data_fn);
+  check_file(labels_fn);
+  check_file(snp_id_fn);
+  check_file(covar_fn);
+
   // get and set the data dimensions.
   std::tuple<int, int> data_dim = get_dimensions(data_fn);
   n_samples = std::get<1>(data_dim);
@@ -148,6 +154,11 @@ Data::Data(std::string data_fn, std::string labels_fn, std::string snp_id_fn,
 */
 Data::Data (std::string data_fn, std::string labels_fn, std::string snp_id_fn)
 {
+
+  // Check if the input files exist.
+  check_file(data_fn);
+  check_file(labels_fn);
+  check_file(snp_id_fn);
 
   // Get and set the data dimensions.
   std::tuple<int, int> dimensions = get_dimensions(data_fn);
