@@ -2,7 +2,7 @@
 * @Author: Anja Gumpinger
 * @Date:   2018-11-12 13:57:32
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-07-08 17:02:38
+* @Last Modified time: 2019-07-09 09:39:15
 */
 
 #ifndef _data_cpp_
@@ -35,6 +35,9 @@ public:
   Eigen::MatrixXd matrix;
   Eigen::VectorXd labels;
 
+  // The snp-IDs.
+  std::vector<std::string> snp_ids;
+
   // Vectors storing the number of samples and cases per covariate class.
   Eigen::VectorXd pt_samples;
   Eigen::VectorXd pt_cases;
@@ -43,12 +46,14 @@ public:
   Data() = default;
 
   // Constructor with covariate file.
-  Data(std::string, std::string, std::string);
+  Data(std::string, std::string, std::string, std::string);
 
   // Constructor without covariate file.
-  Data(std::string, std::string);
+  Data(std::string, std::string, std::string);
 
 private:
+
+  Eigen::VectorXd pt_samples_cumsum;
 
   // Get initial dimensionality of a data set.
   std::tuple<int, int> get_dimensions(std::string filename);
@@ -59,9 +64,11 @@ private:
   Eigen::VectorXd load_labels(std::string filename, long long n_samples,
   std::vector<int> sort_vec);
   std::vector<int> load_covar(std::string filename, long long n_samples);
+  std::vector<std::string> load_snps(std::string filename);
 
   // Functions to initialize the different data metrics.
   void init_cases();
+  void init_cumsum();
   void init_covar(std::vector<int> tmp_covar, std::vector<int> sort_vec);
   
 };
@@ -70,7 +77,8 @@ private:
 /*
   Constructor function with covariate file.
 */
-Data::Data(std::string data_fn, std::string labels_fn, std::string covar_fn)
+Data::Data(std::string data_fn, std::string labels_fn, std::string snp_id_fn,
+           std::string covar_fn)
 {
 
   // get and set the data dimensions.
@@ -110,6 +118,9 @@ Data::Data(std::string data_fn, std::string labels_fn, std::string covar_fn)
     }
   std::vector<int> sort_id = argsort(y);
 
+  // Read the snps.
+  snp_ids = load_snps(snp_id_fn);
+
   // Read the labels and sort them according to the covariates.
   labels = load_labels(labels_fn, n_samples, sort_id);
 
@@ -135,7 +146,8 @@ Data::Data(std::string data_fn, std::string labels_fn, std::string covar_fn)
   Constructor function without the covariate file. (Called at initialization of 
   class, precomputes everything and sets all default values).
 */
-Data::Data (std::string data_fn, std::string labels_fn){
+Data::Data (std::string data_fn, std::string labels_fn, std::string snp_id_fn)
+{
 
   // Get and set the data dimensions.
   std::tuple<int, int> dimensions = get_dimensions(data_fn);
@@ -360,5 +372,45 @@ std::vector<int> Data::load_covar(std::string filename, long long n_samples)
   }
   return tmp_covar;
 }
+
+
+/*
+  Read the SNP-IDs from the file.
+*/
+std::vector<std::string> Data::load_snps(std::string filename)
+{
+
+  std::string line;
+  std::stringstream ss_line;
+  std::string value;
+  std::vector<std::string> snps;
+ 
+  std::ifstream f(filename);
+  while(std::getline(f, line))
+  {
+    ss_line << line;
+    while(ss_line >> value) 
+    {
+      snps.push_back(value);
+    }
+    ss_line.clear();
+  }
+  return snps;
+}
+
+
+/*
+  Create the cummulative sum of number of samples per covariate class.
+*/
+void Data::init_cumsum()
+{
+  pt_samples_cumsum = Eigen::VectorXd::Zero(n_covar);
+  pt_samples_cumsum(0) = pt_samples(0);
+  for (int i=1; i<pt_samples_cumsum.rows(); i++)
+  {
+    pt_samples_cumsum(i) = pt_samples(i) + pt_samples_cumsum(i-1);
+  }
+}
+
 
 #endif
