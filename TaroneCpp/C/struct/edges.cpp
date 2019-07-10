@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-04 16:56:06
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-07-10 18:21:16
+* @Last Modified time: 2019-07-10 21:35:43
 */
 
 
@@ -135,7 +135,6 @@ void Edges::read_edges(std::string edge_file){
     edge_vec.clear();
     ss_line.clear();
   }
-  std::cout << "finished." << std::endl;
   file.close();   
 
   // sort the nodes and remove duplicates.

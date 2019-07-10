@@ -2,7 +2,7 @@
 * @Author: Anja Gumpinger
 * @Date:   2018-11-12 13:57:32
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-07-10 17:44:06
+* @Last Modified time: 2019-07-10 21:38:36
 */
 
 #ifndef _data_cpp_
@@ -38,8 +38,10 @@ public:
   // The snp-IDs.
   std::vector<std::string> snp_ids;
 
-  // Vectors storing the number of samples and cases per covariate class.
+  // Vectors storing the number of samples per covariate class.
   Eigen::VectorXd pt_samples;
+
+  // Vectors storing the number of cases per covariate class.
   Eigen::VectorXd pt_cases;
  
   // Empty constructor for initialization.
@@ -53,6 +55,8 @@ public:
 
 private:
 
+  // Vector that contains the cumulative sum over the samples in the covariate
+  // classes.
   Eigen::VectorXd pt_samples_cumsum;
 
   // Get initial dimensionality of a data set.
@@ -60,10 +64,16 @@ private:
 
   // Reading of the data set from text-files.
   Eigen::MatrixXd load_data(std::string filename, int n_rows, int n_cols,
-    std::vector<int> sort_vec);
+                            std::vector<int> sort_vec);
+
+  // Function to load the labels from a txt-file.
   Eigen::VectorXd load_labels(std::string filename, long long n_samples,
-  std::vector<int> sort_vec);
+                              std::vector<int> sort_vec);
+
+  // Function to load the covariates from a txt.file.
   std::vector<int> load_covar(std::string filename, long long n_samples);
+
+  // Function to load the SNP-IDs from a txt-file.
   std::vector<std::string> load_snps(std::string filename);
 
   // Functions to initialize the different data metrics.
@@ -98,14 +108,15 @@ Data::Data(std::string data_fn, std::string labels_fn, std::string snp_id_fn,
   // get the label dimensions.
   std::tuple<int, int> label_dim = get_dimensions(labels_fn);
 
-  // Assert that the covariates and the labels dimensions match the ones in the
-  // data set.
+  // Assert that the covariate dimensions match the ones in the data set.
   if (n_samples != std::get<0>(covar_dim)){
     std::cerr << "Error @ dimensions: Different number of samples in data-";
     std::cerr << "file (" << n_samples << ") and covariate-file (";
     std::cerr << std::get<0>(covar_dim) << ")." << std::endl;
     std::exit(-1);
   }
+
+  // Assert that the label dimensions match the ones in the data set.
   if (n_samples != std::get<0>(label_dim)){
     std::cerr << "Error @ dimensions: Different number of samples in data-";
     std::cerr << "file (" << n_samples << ") and label-file (";
@@ -121,9 +132,9 @@ Data::Data(std::string data_fn, std::string labels_fn, std::string snp_id_fn,
   // Get the sorting indices of the covariates (ordering of samples).
   std::vector<int> y;
   for(int i=0; i<tmp_covar.size(); i++) 
-    {
-      y.push_back(tmp_covar[i]);
-    }
+  {
+    y.push_back(tmp_covar[i]);
+  }
   std::vector<int> sort_id = argsort(y);
 
   // Read the snps.
@@ -142,8 +153,12 @@ Data::Data(std::string data_fn, std::string labels_fn, std::string snp_id_fn,
   std::cout << "Done" << std::endl;
 
   // invert labels if the positive class is the majority class.
-  if (labels.sum() > n_samples/2){
-    for (int i=0; i<labels.rows(); i++) labels(i) = !labels(i);
+  if (labels.sum() > n_samples/2)
+  {
+    for (int i=0; i<labels.rows(); i++)
+    {
+      labels(i) = !labels(i);
+    } 
   }
 
   n_cases = labels.sum();
@@ -203,7 +218,10 @@ Data::Data (std::string data_fn, std::string labels_fn, std::string snp_id_fn)
   // invert labels if majority class.
   if (labels.sum() > n_samples/2)
   {
-    for (int i=0; i<labels.rows(); i++) labels(i) = !labels(i);
+    for (int i=0; i<labels.rows(); i++) 
+    {
+      labels(i) = !labels(i);
+    }
   }
 
   n_cases = labels.sum();
@@ -244,7 +262,10 @@ void Data::init_covar(std::vector<int> tmp_covar,
   }
   classes.push_back(tmp_count);
   pt_samples = Eigen::VectorXd::Zero(classes.size());
-  for (int i=0; i<classes.size(); i++) pt_samples[i] = classes[i];
+  for (int i=0; i<classes.size(); i++) 
+  {
+    pt_samples[i] = classes[i];
+  }
 }
 
 
