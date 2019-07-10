@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-04 17:39:39
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-07-10 14:30:14
+* @Last Modified time: 2019-07-10 20:36:26
 */
 
 #ifndef _utils_cpp_
@@ -203,6 +203,34 @@ void check_out_file(std::string& filename){
     std::cerr << "Error @ check_out_file: Unable to create output file ";
     std::cerr << filename << std::endl;
     exit(-1);
+  }
+}
+
+
+/*
+  Computes the alpha-quantile of a vector of doubles.
+*/
+double alpha_quantile(std::vector<double> vec, double alpha){
+
+  // sort vector in increasing order.
+  std::sort(vec.begin(), vec.end()); 
+
+  // find the alpha-quantile and adjust for 0-based indexing.
+  int idx = (int) (alpha * vec.size());
+  idx -= 1;
+
+  // if the value at index idx+1 is the same as the value at index idx, pick 
+  // next smaller one (otherwise, quantile will be incorrect).
+  if (vec[idx+1] != vec[idx])
+  {
+    return vec[idx];
+  }else{
+    int tmp_idx = idx;
+    while(vec[tmp_idx] == vec[idx]) 
+    {
+      tmp_idx -= 1;
+    }
+    return vec[tmp_idx];
   }
 }
 
