@@ -2,7 +2,7 @@
 * @Author: Anja Gumpinger
 * @Date:   2018-11-13 19:32:54
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-07-09 15:16:04
+* @Last Modified time: 2019-07-10 21:25:11
 */
 
 #ifndef _tarone_cmh_wy_cpp_
@@ -69,6 +69,12 @@ class TaroneCMHwy: public TaroneCMH
     // Function to process the testables.
     void process_testable(Eigen::VectorXd pt_support,
                           const Eigen::MatrixXd& support);
+
+    // Function to compute the corrected threshold.
+    double corr_threshold();
+
+    // Function to write summary file.
+    void write_summary(std::string filename, int n_significant);
 
   protected:
     /*
@@ -229,6 +235,15 @@ double TaroneCMHwy::empirical_fwer(){
 }
 
 
+/*
+  Computes the corrected significance threshold as the alpha-quantile of 
+  the permutation vectors.
+*/
+double TaroneCMHwy::corr_threshold(){
+  return alpha_quantile(perm_pvalues, target_fwer);
+}
+
+
 /*  
   Wrapper calling the processing of a testable itemset. 
 */
@@ -296,6 +311,8 @@ void TaroneCMHwy::permutation_testing(Eigen::VectorXd pt_support,
   // Step 1(ii): Compute all possible p-values and store them in a vector.
   // This step can be parallelized.
   std::vector<double> tmp_pvals(a_max-a_min+1);
+  #pragma omp parallel
+  #pragma omp for 
   for (long long a=a_min; a<=a_max; a++)
   {
     int a_idx = a - a_min;
@@ -304,6 +321,8 @@ void TaroneCMHwy::permutation_testing(Eigen::VectorXd pt_support,
 
   // Step 2: Compute the minimum p-value over all permutations.
   // This step can be parallelized.
+  #pragma omp parallel
+  #pragma omp for
   for (int p=0; p<n_perm; p++)
   {
     long long a = compute_supported_cases(support, perm_labels.row(p));
@@ -311,6 +330,38 @@ void TaroneCMHwy::permutation_testing(Eigen::VectorXd pt_support,
     double tmp = std::min(perm_pvalues[p], tmp_pvals[a_idx]);
     perm_pvalues[p] = tmp;
   }
+}
+
+
+void TaroneCMHwy::write_summary(std::string filename, int n_significant)
+{
+
+  std::ofstream file(filename);
+
+  file << "Data set characteristics: "                      << std::endl;
+  file << "Number samples: "            << pt_samples.sum() << std::endl;
+  file << "Number cases: "              << pt_cases.sum()   << std::endl;
+  file << "Number covariates: "         << n_cov            << std::endl; 
+  file << std::endl;
+
+  file << "Covariate classes:" << std::endl;
+  for (int i=0; i<n_cov; i++)
+  {
+    file << "covar_" << i << ": ";
+    file <<  pt_cases(i) << "/" << pt_samples(i);
+    file << " (n_cases/n_samples)" << std::endl;
+  }
+  file << std::endl;
+
+  // Tarone results.
+  file << "Tarone results:"                                 << std::endl;
+  file << "Number permutations: "     << n_perm             << std::endl;
+  file << "Empirical FWER: "          << empirical_fwer()   << std::endl;
+  file << "Testability threshold: "   << delta_t()          << std::endl;
+  file << "Target fwer: "             << target_fwer        << std::endl;
+  file << "Significance threshold: "  << corr_threshold()   << std::endl;
+  file << "Number significant: "      << n_significant      << std::endl;
+
 }
 
 
