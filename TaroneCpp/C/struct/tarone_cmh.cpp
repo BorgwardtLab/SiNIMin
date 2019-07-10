@@ -2,7 +2,7 @@
 * @Author: Anja Gumpinger
 * @Date:   2018-11-13 19:32:54
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-07-09 15:37:42
+* @Last Modified time: 2019-07-10 16:12:09
 */
 
 #ifndef _tarone_cmh_cpp_
@@ -57,8 +57,7 @@ class TaroneCMH{
     double compute_pval(int a, Eigen::VectorXd pt_support);
 
     // Function to write a summary of the tarone run.
-    void write_summary(std::string filename, long long n_enumerated, 
-                       long long n_significant);
+    void write_summary(std::string filename, int n_significant);
 
   protected:
     // Protected members are accessible by the class itself and any class 
@@ -516,8 +515,7 @@ bool TaroneCMH::is_prunable(Eigen::VectorXd x)
 }
 
 
-void TaroneCMH::write_summary(std::string filename, long long n_enumerated,
-                              long long n_significant)
+void TaroneCMH::write_summary(std::string filename, int n_significant)
 {
 
   std::ofstream file(filename);
@@ -538,7 +536,6 @@ void TaroneCMH::write_summary(std::string filename, long long n_enumerated,
 
   // Tarone results.
   file << "Tarone results:" << std::endl;
-  file << "Number enumerated: " << n_enumerated << std::endl;
   file << "Number testable: " << n_testable() << std::endl;
   file << "Testability threshold: " << delta_t() << std::endl;
   file << "Target fwer: " << target_fwer << std::endl;

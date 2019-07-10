@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-04 17:39:39
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-07-09 18:12:03
+* @Last Modified time: 2019-07-10 14:30:14
 */
 
 #ifndef _utils_cpp_
@@ -49,6 +49,9 @@ Eigen::MatrixXd binary_or(Eigen::MatrixXd vec0, Eigen::MatrixXd vec1);
 
 // Check if a file exists.
 void check_file(std::string filename);
+
+// Check if output file can be generated.
+void check_out_file(std::string& filename);
 
 
 /* Functions. */
@@ -185,6 +188,20 @@ void check_file(std::string filename){
   if (!f.is_open()){
     std::cerr << "Error @ check_file: Unable to open file " << filename;
     std::cerr << std::endl;
+    exit(-1);
+  }
+}
+
+
+/*
+  Checks if an output file can be generated.
+*/
+void check_out_file(std::string& filename){
+  std::ofstream file_obj;
+  file_obj.open(filename);
+  if(!file_obj.is_open()) {
+    std::cerr << "Error @ check_out_file: Unable to create output file ";
+    std::cerr << filename << std::endl;
     exit(-1);
   }
 }

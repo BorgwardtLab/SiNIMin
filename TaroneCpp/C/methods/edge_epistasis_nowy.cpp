@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-09 14:13:20
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-07-09 18:16:33
+* @Last Modified time: 2019-07-10 16:39:45
 */
 
 
@@ -68,7 +68,7 @@ class EdgeEpistasis
 
     // Constructor with output filename.
     EdgeEpistasis(Data data_obj, Edges edge_obj, Mapping map_obj, 
-                  TaroneCMH tarone_obj, int maxlen, std::string filename);
+                  double alpha, int maxlen, std::string filename);
 
     // Functions to run the mining.
     void process_edges();
@@ -103,7 +103,7 @@ class EdgeEpistasis
   Constructor.
 */
 EdgeEpistasis::EdgeEpistasis(Data data_obj, Edges edge_obj, Mapping map_obj, 
-                             TaroneCMH tarone_obj, int maxlen=0,
+                             double alpha, int maxlen=0,
                              std::string output_filename="./edge_epistasis.csv") 
 {
   // Set input objects.
@@ -111,7 +111,10 @@ EdgeEpistasis::EdgeEpistasis(Data data_obj, Edges edge_obj, Mapping map_obj,
   data = data_obj;
   edges = edge_obj;
   mapping = map_obj;
-  tarone = tarone_obj;
+
+  // initialize the Tarone object.
+  TaroneCMH tmp_tarone(alpha, data.pt_samples, data.pt_cases);
+  tarone = tmp_tarone;
 
   // init the output filestream.
   output_file = output_filename;
@@ -137,7 +140,6 @@ void EdgeEpistasis::process_edges()
   out_stream << "p-value,min_pval,gene0,start0_len0,gene1,start1_len1"; 
   out_stream << std::endl;
 
-
   for (int i=0; i<edges.n_edges; i++)
   {
 
@@ -150,6 +152,18 @@ void EdgeEpistasis::process_edges()
     // Get the gene integer-names of the genes adjacent to the edge.
     int gene_0_int = edges.edges_int[i][0];
     int gene_1_int = edges.edges_int[i][1];
+
+    // check if both, source and sink nodes have SNPs overlapping with them.
+    if (mapping.geneview_map_idx.find(gene_0_str) == \
+        mapping.geneview_map_idx.end())
+    {
+      continue;
+    }
+    if (mapping.geneview_map_idx.find(gene_1_str) == \
+        mapping.geneview_map_idx.end())
+    {
+      continue;
+    }
 
     // Check if the intervals for gene_0 and gene_1 have already been
     // created. If not, do so.
@@ -175,6 +189,8 @@ void EdgeEpistasis::process_edges()
 }
 
 
+
+
 /*
   Creates all intervals in gene given by 'gene_name'.
   Starts by extracting the corresponding SNPs and extracting them from the
@@ -192,7 +208,7 @@ interval_supports EdgeEpistasis::make_gene_intervals(std::string gene_name)
   // The SNP-ids.
   std::vector<int> snp_ids = mapping.geneview_map_idx[gene_name];
 
-  // The data-matrix corresponding to the SNPs.
+  // The data-matrix corresponding to the SNPs (see comments below for update).
   Eigen::MatrixXd tmp_matrix =  \
       data.matrix.block(snp_ids.front(), 0, snp_ids.size(), data.n_samples); 
 
