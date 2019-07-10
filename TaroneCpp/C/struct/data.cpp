@@ -2,7 +2,7 @@
 * @Author: Anja Gumpinger
 * @Date:   2018-11-12 13:57:32
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-07-09 18:13:38
+* @Last Modified time: 2019-07-10 17:44:06
 */
 
 #ifndef _data_cpp_
@@ -114,7 +114,9 @@ Data::Data(std::string data_fn, std::string labels_fn, std::string snp_id_fn,
   }
 
   // Load the covariates.
+  std::cout << "Loading covariates. ";
   std::vector<int> tmp_covar = load_covar(covar_fn, n_samples);
+  std::cout << "Done" << std::endl;
 
   // Get the sorting indices of the covariates (ordering of samples).
   std::vector<int> y;
@@ -125,13 +127,19 @@ Data::Data(std::string data_fn, std::string labels_fn, std::string snp_id_fn,
   std::vector<int> sort_id = argsort(y);
 
   // Read the snps.
+  std::cout << "Loading SNPs. ";
   snp_ids = load_snps(snp_id_fn);
+  std::cout << "Done" << std::endl;
 
   // Read the labels and sort them according to the covariates.
+  std::cout << "Loading labels. ";
   labels = load_labels(labels_fn, n_samples, sort_id);
+  std::cout << "Done" << std::endl;
 
   // Read the data and sort the samples according to the covariates.
+  std::cout << "Loading data. ";
   matrix = load_data(data_fn, n_features, n_samples, sort_id); 
+  std::cout << "Done" << std::endl;
 
   // invert labels if the positive class is the majority class.
   if (labels.sum() > n_samples/2){
@@ -145,6 +153,7 @@ Data::Data(std::string data_fn, std::string labels_fn, std::string snp_id_fn,
   n_covar = pt_samples.size();
   init_cumsum();
   init_cases();
+
 }
 
 
@@ -176,11 +185,20 @@ Data::Data (std::string data_fn, std::string labels_fn, std::string snp_id_fn)
       sort_id.push_back(i);
     }
 
+  // Read the snps.
+  std::cout << "Loading SNPs. ";
+  snp_ids = load_snps(snp_id_fn);
+  std::cout << "Done" << std::endl;
+
   // Read the labels and sort them according to the covariates.
+  std::cout << "Loading labels. ";
   labels = load_labels(labels_fn, n_samples, sort_id);
+  std::cout << "Done" << std::endl;
 
   // Read the data and sort the samples according to the covariates.
+  std::cout << "Loading data. ";
   matrix = load_data(data_fn, n_features, n_samples, sort_id); 
+  std::cout << "Done" << std::endl;
 
   // invert labels if majority class.
   if (labels.sum() > n_samples/2)

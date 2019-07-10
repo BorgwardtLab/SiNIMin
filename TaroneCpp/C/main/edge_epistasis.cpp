@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-04 17:19:08
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-07-10 16:26:03
+* @Last Modified time: 2019-07-10 18:17:47
 */
 
 // Include standard libs.
@@ -147,6 +147,9 @@ int main(int argc, char** argv)
 
 
   // ---------------------------------------------------------------------------
+  // Read the edges.                                      
+  Edges edges(edge_file);
+
   // Initialize the data to an empty constructor, load it with the given files,
   // either with or without covariate files.
   Data dataset;
@@ -159,9 +162,6 @@ int main(int argc, char** argv)
     dataset = tmp_data;
   }
     
-  // Read the edges.                                      
-  Edges edges(edge_file);
-
   // Read the mapping from SNPs to genes.
   Mapping mapping(map_file);
 
