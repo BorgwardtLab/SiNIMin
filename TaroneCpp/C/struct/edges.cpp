@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-04 16:56:06
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-07-09 18:15:29
+* @Last Modified time: 2019-07-10 18:21:16
 */
 
 
@@ -45,6 +45,10 @@ public:
   // Number of nodes.
   long long n_nodes;
 
+  // vector of all nodes in the network (string name, faster generation of 
+  // maps).
+  std::vector<std::string> nodes_str;
+
   // representation of edges as tuple of strings.
   std::vector<std::vector<std::string>> edges_str;
 
@@ -59,15 +63,20 @@ public:
 
   // Empty constructor for initialization.
   Edges() = default;
+
   // Constructor with edge file.
   Edges(std::string);
 
 private:
 
   void read_edges(std::string edge_file);
+  
   void remove_duplicate_edges();
+  
   void create_str_int_maps();
+  
   void translate_edges();
+  
 
 };
 
@@ -77,8 +86,9 @@ Edges::Edges(std::string edge_fn){
   check_file(edge_fn);
 
   read_edges(edge_fn);
+
   remove_duplicate_edges();
-  
+
   // Create the mapping of integer and string labels.
   create_str_int_maps();
 
@@ -87,7 +97,8 @@ Edges::Edges(std::string edge_fn){
 
   // set the number of edges.
   n_edges = edges_str.size();
-  n_nodes = vertex_str_to_int_map.size();
+  n_nodes = nodes_str.size();
+
 }
 
 
@@ -103,10 +114,13 @@ void Edges::read_edges(std::string edge_file){
   std::vector<std::string> edge_vec;
 
   std::ifstream file(edge_file);
-  while(std::getline(file, line)){
+  while(std::getline(file, line))
+  {
     ss_line << line;
-    while(ss_line >> vertex_name) {
+    while(ss_line >> vertex_name) 
+    {
       edge_vec.push_back(vertex_name);
+      nodes_str.push_back(vertex_name);
     }
 
     // sort the vertices in alphabetic order to later remove duplicates.
@@ -121,7 +135,13 @@ void Edges::read_edges(std::string edge_file){
     edge_vec.clear();
     ss_line.clear();
   }
+  std::cout << "finished." << std::endl;
   file.close();   
+
+  // sort the nodes and remove duplicates.
+  std::sort(nodes_str.begin(), nodes_str.end());
+  nodes_str.erase(std::unique(nodes_str.begin(), nodes_str.end()), 
+                  nodes_str.end());
 }
 
 
@@ -137,21 +157,24 @@ void Edges::remove_duplicate_edges(){
 }
 
 
-/* Create the edges from string to integer label and vice versa. */
+/* 
+  Create the edges from string to integer label and vice versa. 
+*/
 void Edges::create_str_int_maps(){
+
+  // this part is super slow.
 
   int current_count = 0;
 
-  for(int i=0; i<edges_str.size(); i++)
+  for(int i=0; i<nodes_str.size(); i++)
   {
-    for(int j=0; j<2; j++)
+    if (vertex_str_to_int_map.find(nodes_str[i]) == vertex_str_to_int_map.end())
     {
-      if (!check_key(vertex_str_to_int_map, edges_str[i][j])){
-        vertex_str_to_int_map[edges_str[i][j]] = current_count;
-        vertex_int_to_str_map[current_count] = edges_str[i][j];
-        current_count += 1;
-      }
+      vertex_str_to_int_map[nodes_str[i]] = current_count;
+      vertex_int_to_str_map[current_count] = nodes_str[i];
+      current_count += 1;
     }
+    
   }
 }
 
