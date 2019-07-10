@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-04 17:19:08
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-07-10 18:17:47
+* @Last Modified time: 2019-07-10 21:31:54
 */
 
 // Include standard libs.
@@ -22,13 +22,12 @@
 #include "../struct/data.cpp"
 #include "../struct/edges.cpp"
 #include "../struct/mapping.cpp"
-#include "../struct/tarone_cmh.cpp"
-#include "../struct/tarone_cmh_wy.cpp"
 #include "../struct/timer.cpp"
 #include "../utils/utils.cpp"
 #include "../utils/output.cpp"
 
 #include "../methods/edge_epistasis_nowy.cpp"
+#include "../methods/edge_epistasis_wy.cpp"
 
 
 
@@ -67,7 +66,13 @@ int main(int argc, char** argv)
   double target_fwer = 0.05;
   int n_threads = 1;
 
-  while( (opt = getopt(argc, argv, "i:s:c:l:m:e:f:n:o:")) != -1){
+  // Number of permutations, default: 0 (no WY permutations).
+  int n_perm = 0;
+
+  // Maximal length (dimension) of intervals, default: 0.
+  int max_interval_dim = 0;
+
+  while( (opt = getopt(argc, argv, "i:s:c:l:m:e:f:n:p:d:o:")) != -1){
     switch(opt){
       case 'i':
         data_file = std::string(optarg); 
@@ -99,6 +104,12 @@ int main(int argc, char** argv)
         break;
       case 'n':
         n_threads = atof(optarg); 
+        break;
+      case 'p':
+        n_perm = atof(optarg); 
+        break;
+      case 'd':
+        max_interval_dim = atof(optarg); 
         break;
       case 'o':
         out_prefix = std::string(optarg);
@@ -142,11 +153,12 @@ int main(int argc, char** argv)
 
   // start measuring the complete execution time, and the initialization time.
   double tic_global = measureTime();
+  
+  // ---------------------------------------------------------------------------
+  // Start data input.
+
   double tic_init = measureTime();
   std::cout << "Reading data. " << std::endl; 
-
-
-  // ---------------------------------------------------------------------------
   // Read the edges.                                      
   Edges edges(edge_file);
 
@@ -175,29 +187,64 @@ int main(int argc, char** argv)
 
 
   // ---------------------------------------------------------------------------
-  // Init the edge-epistasis method.
-  EdgeEpistasis edge_epistasis(dataset, edges, mapping, target_fwer, 0, 
-                               pvalue_file);
+  // Run the edge-epistasis method.
 
-  // Process the edges.
   double tic_mine = measureTime();
   std::cout << "Running EdgeEpistasis." << std::endl;
-  edge_epistasis.process_edges();
-  timer.proc_edge = measureTime() - tic_mine;
-  std::cout << "Time elapsed: " << timer.proc_edge;
-  std::cout << " sec." << std::endl << std::endl;
 
-  // Filter the significant edges.
-  int n_significant = \
-      write_significant_edge_epi(edge_epistasis.tarone.corr_threshold(),
-                                 pvalue_file, significant_file);
+  // If n_perm is set to a value larger than 0, WY-permutations will be run.
+  if (n_perm > 0)
+  {
+    std::cout << "Permutation testing with " << n_perm << " permutations.";
+    std::cout << std::endl;
+    EdgeEpistasisWY edge_epistasis(dataset, edges, mapping, target_fwer, 
+                                   max_interval_dim, n_perm, pvalue_file);
+    edge_epistasis.process_edges();
 
-  // Write the tarone summary.
-  edge_epistasis.tarone.write_summary(tarone_file, n_significant);
+    timer.proc_edge = measureTime() - tic_mine;
+    std::cout << "Time elapsed: " << timer.proc_edge;
+    std::cout << " sec." << std::endl << std::endl;
+
+    // Filter the significant edges.
+    int n_significant = \
+        write_significant_edge_epi(edge_epistasis.tarone.corr_threshold(),
+                                   pvalue_file, significant_file);
+
+    // Write the tarone summary.
+    edge_epistasis.tarone.write_summary(tarone_file, n_significant);
+
+  }
+
+  // If n_perm is set to 0, no WY-permutations will be run.
+  if (n_perm == 0)
+  {
+    std::cout << "No permutation testing." << std::endl;
+    EdgeEpistasis edge_epistasis(dataset, edges, mapping, target_fwer, 
+                                 max_interval_dim, pvalue_file);
+    edge_epistasis.process_edges();
+
+    timer.proc_edge = measureTime() - tic_mine;
+    std::cout << "Time elapsed: " << timer.proc_edge;
+    std::cout << " sec." << std::endl << std::endl;
+
+    // Filter the significant edges.
+    int n_significant = \
+        write_significant_edge_epi(edge_epistasis.tarone.corr_threshold(),
+                                   pvalue_file, significant_file);
+
+    // Write the tarone summary.
+    edge_epistasis.tarone.write_summary(tarone_file, n_significant);
+
+  }
+
+  if (n_perm < 0)
+  {
+    std::cerr << "Invalid argument for number of permutations.";
+    std::exit(-1);
+  }
+  
 
   timer.total = measureTime() - tic_global;
   timer.write_profiling(profiling_file);
 
-  
-  
 }
