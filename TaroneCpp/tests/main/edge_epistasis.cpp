@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-04 17:19:08
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-07-09 18:18:20
+* @Last Modified time: 2019-07-10 16:29:55
 */
 
 // Include standard libs.
@@ -27,7 +27,7 @@
 #include "../../C/struct/tarone_cmh_wy.cpp"
 #include "../../C/utils/utils.cpp"
 
-#include "../../C/methods/edge_epistasis.cpp"
+#include "../../C/methods/edge_epistasis_nowy.cpp"
 
 
 
@@ -54,11 +54,8 @@ int main(int argc, char** argv)
   // translate the mapping to the SNP-IDs that are provided with the data set.
   mapping.translate_snp_ids(dataset.snp_ids);
 
-  // Init the Tarone container.
-  TaroneCMH tarone(0.05, dataset.pt_samples, dataset.pt_cases);
-
   // Init the edge-epistasis method.
-  EdgeEpistasis edge_epistasis(dataset, edges, mapping, tarone);
+  EdgeEpistasis edge_epistasis(dataset, edges, mapping, 0.05);
 
   // Process the edges.
   edge_epistasis.process_edges();

@@ -1,3 +1,4 @@
+geneE geneB
 geneA geneA
 geneA geneB
 geneA geneC
