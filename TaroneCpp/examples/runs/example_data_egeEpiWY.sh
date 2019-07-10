@@ -1,7 +1,7 @@
 # @Author: guanja
 # @Date:   2019-07-10 14:50:08
 # @Last Modified by:   guanja
-# @Last Modified time: 2019-07-10 21:18:10
+# @Last Modified time: 2019-07-10 21:18:34
 
 
 ROOT="/home/guanja/projects/cpkgs/TaroneCpp/TaroneCpp"
@@ -17,7 +17,7 @@ SNP_FN="${ROOT}/examples/data/snp_ids.txt"
 
 N_THREADS=2
 
-OUT_PR="${ROOT}/examples/output/edgeEpiCMH_examples"
+OUT_PR="${ROOT}/examples/output/edgeEpiCMHwy_examples"
 
 "${EXEC}" \
   -i "${DAT_FN}" \
@@ -27,6 +27,7 @@ OUT_PR="${ROOT}/examples/output/edgeEpiCMH_examples"
   -e "${EDG_FN}" \
   -s "${SNP_FN}" \
   -f 0.05 \
+  -p 1000 \
   -n "${N_THREADS}" \
   -o "${OUT_PR}" \
 

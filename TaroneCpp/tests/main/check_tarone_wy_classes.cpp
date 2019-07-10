@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-04 17:19:08
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-07-08 18:41:40
+* @Last Modified time: 2019-07-10 20:41:20
 */
 
 // Include standard libs.
@@ -121,6 +121,7 @@ int main(int argc, char** argv)
   tarone_test1.process_testable(support_pt, support);
   std::cout << "delta_t = " << tarone_test1.delta_t() << std::endl;
   std::cout << "emp. FWER = " << tarone_test1.empirical_fwer() << std::endl;
+  std::cout << "Corr. thresh. = " << tarone_test1.corr_threshold() << std::endl;
 
   // try next pattern.
   support_vec = {1, 1, 0, 0, 0, 0, 1, 1, 0, 0};
@@ -132,6 +133,7 @@ int main(int argc, char** argv)
   tarone_test1.process_testable(support_pt, support);
   std::cout << "delta_t = " << tarone_test1.delta_t() << std::endl;
   std::cout << "emp. FWER = " << tarone_test1.empirical_fwer() << std::endl;
+  std::cout << "Corr. thresh. = " << tarone_test1.corr_threshold() << std::endl;
 
   // try next pattern.
   support_vec = {0, 1, 0, 0, 0, 0, 1, 1, 0, 0};
@@ -144,4 +146,6 @@ int main(int argc, char** argv)
   std::cout << "delta_t = " << tarone_test1.delta_t() << std::endl;
   std::cout << "emp. FWER = " << tarone_test1.empirical_fwer() << std::endl;
 
+  // Print the corrected threshold.
+  std::cout << "Corr. thresh. = " << tarone_test1.corr_threshold() << std::endl;
 }
