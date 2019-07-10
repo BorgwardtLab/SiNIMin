@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-09 14:13:20
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-07-10 16:39:45
+* @Last Modified time: 2019-07-10 21:08:54
 */
 
 
@@ -24,7 +24,6 @@
 #include "../struct/edges.cpp"
 #include "../struct/mapping.cpp"
 #include "../struct/tarone_cmh.cpp"
-#include "../struct/tarone_cmh_wy.cpp"
 #include "../utils/utils.cpp"
 
 
