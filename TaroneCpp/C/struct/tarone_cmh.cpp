@@ -2,7 +2,7 @@
 * @Author: Anja Gumpinger
 * @Date:   2018-11-13 19:32:54
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-07-10 16:12:09
+* @Last Modified time: 2019-07-11 11:37:57
 */
 
 #ifndef _tarone_cmh_cpp_
@@ -164,10 +164,11 @@ double TaroneCMH::corr_threshold()
 long long TaroneCMH::n_testable()
 {
   long long count = 0;
-  for (int i=idx_t+1; i<freq_counts.size(); i++)
+  for (int i=idx_t+1; i<=NGRID; i++)
   {
     count += freq_counts[i];
   }
+  std::cout << count << std::endl;
   return count;
 }
 
@@ -291,10 +292,20 @@ bool TaroneCMH::is_testable(double min_pv)
 }
 
 
-// given a p-value, find its 'bucket' (to count number of testable sets.)
+/*
+  given a p-value, find its 'bucket' (to count the number of testables).
+  If the p-value is 0, the log10 is not defined, hence we automatically put 
+  this p-value into the last bucket.
+*/
 int TaroneCMH::bucket_idx(double pval)
 {
+  if (pval == 0)
+  {
+    return NGRID;
+  }
+
   int idx = (int)floor(-log10(pval)/log10_p_step);
+
   if(idx<0) 
     {
       idx = 0;
