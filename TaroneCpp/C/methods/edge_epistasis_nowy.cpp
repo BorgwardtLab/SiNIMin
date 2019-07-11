@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-09 14:13:20
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-07-10 21:08:54
+* @Last Modified time: 2019-07-11 13:01:32
 */
 
 
@@ -259,10 +259,8 @@ void EdgeEpistasis::intervals_layer_1(const Eigen::MatrixXd& mat,
         tarone.compute_per_table_support(mat.row(i));
     double min_pv = tarone.compute_minpval(pt_support);
 
-    if (tarone.is_testable(min_pv))
-    {
-      tarone.process_testable(min_pv);
-    }
+    // Here, we do not process the individual intervals, since we only want
+    // to account for pairwise interactions.
     if (!tarone.is_prunable(pt_support)) 
     {
       std::string key = std::to_string(i) + "_" + std::to_string(1);
@@ -321,10 +319,8 @@ void EdgeEpistasis::intervals_layer_x(interval_supports& intervals,
       Eigen::VectorXd pt_support = tarone.compute_per_table_support(support);
       double min_pv = tarone.compute_minpval(pt_support);
 
-      if (tarone.is_testable(min_pv))
-      {
-        tarone.process_testable(min_pv);
-      }
+      // Here, we do not process the individual intervals, since we only want
+      // to account for pairwise interactions
       if (!tarone.is_prunable(pt_support)) 
       {
         // create the key and store it in the intervals, as well as the queue.
@@ -367,6 +363,7 @@ void EdgeEpistasis::test_interval_combinations(interval_supports gene_0_itvl,
       Eigen::VectorXd pt_support = tarone.compute_per_table_support(support);
       double min_pv = tarone.compute_minpval(pt_support);
 
+      // Here we do adapt the threshold.
       if (tarone.is_testable(min_pv))
       {
         tarone.process_testable(min_pv);

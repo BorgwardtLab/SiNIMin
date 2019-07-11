@@ -2,7 +2,7 @@
 * @Author: Anja Gumpinger
 * @Date:   2018-11-13 19:32:54
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-07-11 11:37:57
+* @Last Modified time: 2019-07-11 12:58:12
 */
 
 #ifndef _tarone_cmh_cpp_
@@ -168,7 +168,6 @@ long long TaroneCMH::n_testable()
   {
     count += freq_counts[i];
   }
-  std::cout << count << std::endl;
   return count;
 }
 

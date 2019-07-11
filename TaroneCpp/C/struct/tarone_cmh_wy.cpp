@@ -2,7 +2,7 @@
 * @Author: Anja Gumpinger
 * @Date:   2018-11-13 19:32:54
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-07-10 21:25:11
+* @Last Modified time: 2019-07-11 11:47:31
 */
 
 #ifndef _tarone_cmh_wy_cpp_
@@ -17,6 +17,8 @@
 #include "../utils/EasyGWAS/chi2.h"
 #include "../utils/utils.cpp"
 #include "./tarone_cmh.cpp"
+
+
 
 
 /*
