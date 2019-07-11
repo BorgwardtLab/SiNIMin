@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-04 17:39:39
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-07-10 20:36:26
+* @Last Modified time: 2019-07-11 11:43:21
 */
 
 #ifndef _utils_cpp_
@@ -11,6 +11,8 @@
 #include <unordered_map> 
 #include <vector>
 #include <numeric> // iota
+
+#include <Eigen/Dense>
 
 /* declarations. */
 
@@ -52,6 +54,10 @@ void check_file(std::string filename);
 
 // Check if output file can be generated.
 void check_out_file(std::string& filename);
+
+
+//  Function to compute the alpha-quantile of a vector.
+double alpha_quantile(std::vector<double> vec, double alpha);
 
 
 /* Functions. */
@@ -208,7 +214,7 @@ void check_out_file(std::string& filename){
 
 
 /*
-  Computes the alpha-quantile of a vector of doubles.
+  Function to compute the alpha-quantile of a vector.
 */
 double alpha_quantile(std::vector<double> vec, double alpha){
 
@@ -220,7 +226,7 @@ double alpha_quantile(std::vector<double> vec, double alpha){
   idx -= 1;
 
   // if the value at index idx+1 is the same as the value at index idx, pick 
-  // next smaller one (otherwise, quantile will be incorrect).
+  // next smaller one (otherwise, FWER will be incorrect).
   if (vec[idx+1] != vec[idx])
   {
     return vec[idx];
