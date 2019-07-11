@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-04 17:19:08
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-07-08 12:18:57
+* @Last Modified time: 2019-07-11 11:39:06
 */
 
 // Include standard libs.
@@ -51,5 +51,18 @@ int main(int argc, char** argv)
     std::cout << "Thresh. after proc.: delta_t = " << tarone.delta_t() << ". ";
     std::cout << "n_testable = " << tarone.n_testable() << ". " << std::endl;
   }
+
+  // Assert that a p-value of 0 is processed correctly, i.e. put into the 
+  // last bin.
+
+  std::cout << "++++++++++" << std::endl;
+  std::cout << "Processing minpval=0" << std::endl;
+  tarone.process_testable(0);
+  std::cout << "n_testable = " << tarone.n_testable() << ". " << std::endl;
+
+  std::cout << "++++++++++" << std::endl;
+  std::cout << "Processing minpval=8.70964e-31" << std::endl;
+  tarone.process_testable(8.70964e-31);
+  std::cout << "n_testable = " << tarone.n_testable() << ". " << std::endl;
 
 }
