@@ -2,7 +2,7 @@
 * @Author: Anja Gumpinger
 * @Date:   2018-11-13 19:32:54
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-07-11 12:58:12
+* @Last Modified time: 2019-07-11 13:30:10
 */
 
 #ifndef _tarone_cmh_cpp_
@@ -58,6 +58,9 @@ class TaroneCMH{
 
     // Function to write a summary of the tarone run.
     void write_summary(std::string filename, int n_significant);
+
+    // Function to write the frequency counts to a file.
+    void write_frequencies(std::string filename);
 
   protected:
     // Protected members are accessible by the class itself and any class 
@@ -548,10 +551,26 @@ void TaroneCMH::write_summary(std::string filename, int n_significant)
   file << "Tarone results:" << std::endl;
   file << "Number testable: " << n_testable() << std::endl;
   file << "Testability threshold: " << delta_t() << std::endl;
+  file << "Testability index: " << idx_t << std::endl;
   file << "Target fwer: " << target_fwer << std::endl;
   file << "Significance threshold: " << corr_threshold() << std::endl;
   file << "Number significant: " << n_significant << std::endl;
 
+}
+
+
+/*
+  Write the frequency counts to an output file.
+*/
+void TaroneCMH::write_frequencies(std::string filename)
+{
+  std::ofstream file(filename);
+
+  for (int i=0; i<=NGRID; i++)
+  {
+    file << freq_counts[i] << std::endl;
+  }
+  file << std::endl;
 }
 
 #endif

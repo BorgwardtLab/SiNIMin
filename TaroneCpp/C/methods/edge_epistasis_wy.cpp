@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-09 14:13:20
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-07-11 12:54:49
+* @Last Modified time: 2019-07-11 13:15:37
 */
 
 
@@ -363,6 +363,7 @@ void EdgeEpistasisWY::test_interval_combinations(interval_supports gene_0_itvl,
       Eigen::VectorXd pt_support = tarone.compute_per_table_support(support);
       double min_pv = tarone.compute_minpval(pt_support);
 
+      // Here we do adapt the threshold.
       if (tarone.is_testable(min_pv))
       {
         tarone.process_testable(pt_support, support);

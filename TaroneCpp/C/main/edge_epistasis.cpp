@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-04 17:19:08
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-07-10 21:31:54
+* @Last Modified time: 2019-07-11 13:30:20
 */
 
 // Include standard libs.
@@ -43,6 +43,7 @@ int main(int argc, char** argv)
   std::string profiling_file;
   std::string tarone_file;
   std::string significant_file;
+  std::string frequency_file;
 
   // input filenames.
   std::string data_file;
@@ -118,6 +119,7 @@ int main(int argc, char** argv)
         profiling_file = out_prefix + std::string("_profiling.txt");
         tarone_file = out_prefix + std::string("_tarone.txt");
         significant_file = out_prefix + std::string("_significant.txt");
+        frequency_file = out_prefix + std::string("_minpv_frequencies.txt");
         break;
       default:
         std::cerr << "Error @ main: Incorrect arguments!!!" << std::endl;
@@ -138,6 +140,7 @@ int main(int argc, char** argv)
   check_out_file(pvalue_file);
   check_out_file(profiling_file);
   check_out_file(tarone_file);
+  check_out_file(frequency_file);
 
 
   /*
@@ -234,6 +237,9 @@ int main(int argc, char** argv)
 
     // Write the tarone summary.
     edge_epistasis.tarone.write_summary(tarone_file, n_significant);
+
+    // Write the frequencies.
+    edge_epistasis.tarone.write_frequencies(frequency_file);
 
   }
 
