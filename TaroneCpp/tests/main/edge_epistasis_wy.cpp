@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-04 17:19:08
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-07-31 19:59:44
+* @Last Modified time: 2019-08-06 20:14:40
 */
 
 // Include standard libs.
@@ -27,7 +27,7 @@
 // #include "../../C/struct/tarone_cmh_wy.cpp"
 #include "../../C/utils/utils.cpp"
 
-#include "../../C/methods/edge_epistasis_nowy.cpp"
+#include "../../C/methods/edge_epistasis_wy.cpp"
 
 
 
@@ -44,7 +44,7 @@ int main(int argc, char** argv)
 
   int maxlen = 0;
   std::string out_file="test.txt";
-  bool encode_or=false;
+  bool encode_or=true;
 
   // Read the data.
   Data dataset(dat_file, lab_file, snp_file, cov_file);
@@ -59,10 +59,10 @@ int main(int argc, char** argv)
   mapping.translate_snp_ids(dataset.snp_ids);
 
   // Init the edge-epistasis method.
-  EdgeEpistasis edge_epistasis(dataset, edges, mapping, 0.05, maxlen,
-                               out_file, encode_or);
+  EdgeEpistasisWY edge_epistasis_wy(dataset, edges, mapping, 0.05, maxlen, 
+                                    100, out_file, encode_or);
 
   // Process the edges.
-  edge_epistasis.process_edges();
+  edge_epistasis_wy.process_edges();
 
 }

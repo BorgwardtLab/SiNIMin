@@ -9,8 +9,8 @@ covar_1: 3/5 (n_cases/n_samples)
 
 Tarone results:
 Number permutations: 1000
-Empirical FWER: 0.035
-Testability threshold: 0.00794328
+Empirical FWER: 0.043
+Testability threshold: 0.00912011
 Target fwer: 0.05
 Significance threshold: 0.0015654
 Number significant: 0

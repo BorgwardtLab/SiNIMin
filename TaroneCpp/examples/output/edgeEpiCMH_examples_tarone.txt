@@ -9,7 +9,8 @@ covar_1: 3/5 (n_cases/n_samples)
 
 Tarone results:
 Number testable: 0
-Testability threshold: 0.00794328
+Testability threshold: 0.00912011
+Testability index: 33
 Target fwer: 0.05
 Significance threshold: 0.05
-Number significant: 0
+Number significant: 3

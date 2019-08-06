@@ -1,1 +1,4 @@
 p-value,min_pval,gene0,start0_len0,gene1,start1_len1
+0.0253473,0.0253473,geneA,2_1,geneC,1_1
+0.0209213,0.0209213,geneB,0_2,geneC,1_1
+0.0253473,0.0253473,geneB,0_1,geneC,1_1

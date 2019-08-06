@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-04 17:39:39
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-07-11 11:43:21
+* @Last Modified time: 2019-07-31 19:36:56
 */
 
 #ifndef _utils_cpp_
@@ -49,15 +49,19 @@ std::vector<int> eigen_to_vec(const Eigen::VectorXd& x);
 // Compute the binary or between two vectors (matrices).
 Eigen::MatrixXd binary_or(Eigen::MatrixXd vec0, Eigen::MatrixXd vec1);
 
+//Compute the binary AND between two Matrices of dimension (1, n_samples).
+Eigen::MatrixXd binary_and(Eigen::MatrixXd vec0, Eigen::MatrixXd vec1);
+
 // Check if a file exists.
 void check_file(std::string filename);
 
 // Check if output file can be generated.
 void check_out_file(std::string& filename);
 
-
 //  Function to compute the alpha-quantile of a vector.
 double alpha_quantile(std::vector<double> vec, double alpha);
+
+
 
 
 /* Functions. */
@@ -177,6 +181,27 @@ Eigen::MatrixXd binary_or(Eigen::MatrixXd vec0, Eigen::MatrixXd vec1)
   for (int i=0; i<vec_binary.cols(); i++)
   {
     if (sum_vec0_vec1(0, i) > 0)
+    {
+      vec_binary(0,i) = 1;
+    }
+  }
+  return vec_binary;
+}
+
+
+/*
+ Compute the binary AND between two Matrices of dimension (1, n_samples).
+*/
+Eigen::MatrixXd binary_and(Eigen::MatrixXd vec0, Eigen::MatrixXd vec1)
+{
+  // Add the two matrices.
+  Eigen::MatrixXd sum_vec0_vec1 = vec0 + vec1;
+
+  Eigen::MatrixXd vec_binary = Eigen::MatrixXd::Zero(vec0.rows(), vec0.cols());
+
+  for (int i=0; i<vec_binary.cols(); i++)
+  {
+    if (sum_vec0_vec1(0, i) == 2)
     {
       vec_binary(0,i) = 1;
     }

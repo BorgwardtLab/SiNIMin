@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-04 17:19:08
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-07-11 13:30:20
+* @Last Modified time: 2019-07-31 20:04:15
 */
 
 // Include standard libs.
@@ -66,6 +66,7 @@ int main(int argc, char** argv)
   // Default values for FWER and number of threads to use for analysis.
   double target_fwer = 0.05;
   int n_threads = 1;
+  bool encode_or = true;
 
   // Number of permutations, default: 0 (no WY permutations).
   int n_perm = 0;
@@ -73,7 +74,7 @@ int main(int argc, char** argv)
   // Maximal length (dimension) of intervals, default: 0.
   int max_interval_dim = 0;
 
-  while( (opt = getopt(argc, argv, "i:s:c:l:m:e:f:n:p:d:o:")) != -1){
+  while( (opt = getopt(argc, argv, "i:s:c:l:m:e:f:n:p:d:a:o:r")) != -1){
     switch(opt){
       case 'i':
         data_file = std::string(optarg); 
@@ -112,6 +113,9 @@ int main(int argc, char** argv)
       case 'd':
         max_interval_dim = atof(optarg); 
         break;
+      case 'r':
+        encode_or = false; 
+        break;
       case 'o':
         out_prefix = std::string(optarg);
 
@@ -140,7 +144,7 @@ int main(int argc, char** argv)
   check_out_file(pvalue_file);
   check_out_file(profiling_file);
   check_out_file(tarone_file);
-  check_out_file(frequency_file);
+  check_out_file(frequency_file);  
 
 
   /*
@@ -201,7 +205,8 @@ int main(int argc, char** argv)
     std::cout << "Permutation testing with " << n_perm << " permutations.";
     std::cout << std::endl;
     EdgeEpistasisWY edge_epistasis(dataset, edges, mapping, target_fwer, 
-                                   max_interval_dim, n_perm, pvalue_file);
+                                   max_interval_dim, n_perm, pvalue_file,
+                                   encode_or);
     edge_epistasis.process_edges();
 
     timer.proc_edge = measureTime() - tic_mine;
@@ -223,7 +228,7 @@ int main(int argc, char** argv)
   {
     std::cout << "No permutation testing." << std::endl;
     EdgeEpistasis edge_epistasis(dataset, edges, mapping, target_fwer, 
-                                 max_interval_dim, pvalue_file);
+                                 max_interval_dim, pvalue_file, encode_or);
     edge_epistasis.process_edges();
 
     timer.proc_edge = measureTime() - tic_mine;

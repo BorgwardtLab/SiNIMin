@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-09 14:13:20
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-07-11 13:01:32
+* @Last Modified time: 2019-08-06 21:00:26
 */
 
 
@@ -62,12 +62,16 @@ class EdgeEpistasis
     // The output file.
     std::string output_file;
 
+    // Whether or not interaction should be computed as the binary OR
+    bool encode_or;
+
     // Default constructor.
     EdgeEpistasis() = default;
 
     // Constructor with output filename.
     EdgeEpistasis(Data data_obj, Edges edge_obj, Mapping map_obj, 
-                  double alpha, int maxlen, std::string filename);
+                  double alpha, int maxlen, std::string filename, 
+                  bool do_encode_or);
 
     // Functions to run the mining.
     void process_edges();
@@ -77,17 +81,9 @@ class EdgeEpistasis
     // Function to call generation of all intervals, using only gene name.
     interval_supports make_gene_intervals(std::string gene_name);
 
-    // Function to call search for all testable intervals.
-    interval_supports find_intervals(const Eigen::MatrixXd& mat);
-
-    // Function to explore all length-1 intervals and their supports for a gene.
-    void intervals_layer_1(const Eigen::MatrixXd& mat,
-                           interval_supports& intervals, 
-                           interval_queue& testable_queue);
-
-    // Function to explore intervals of arbitrary length > 1 and their supports.
-    void intervals_layer_x(interval_supports& intervals, 
-                           interval_queue& testable_queue);
+    // Compute the supports of all intervals within a gene in depth-first 
+    // search.
+    interval_supports intervals_depth_first(const Eigen::MatrixXd& mat);
 
     // Test combinations of intervals between two adjacent genes.
     void test_interval_combinations(interval_supports gene_0_itvl,
@@ -103,13 +99,15 @@ class EdgeEpistasis
 */
 EdgeEpistasis::EdgeEpistasis(Data data_obj, Edges edge_obj, Mapping map_obj, 
                              double alpha, int maxlen=0,
-                             std::string output_filename="./edge_epistasis.csv") 
+                             std::string output_filename="./edge_epistasis.csv",
+                             bool do_encode_or=true) 
 {
   // Set input objects.
   max_length = maxlen;
   data = data_obj;
   edges = edge_obj;
   mapping = map_obj;
+  encode_or = do_encode_or;
 
   // initialize the Tarone object.
   TaroneCMH tmp_tarone(alpha, data.pt_samples, data.pt_cases);
@@ -117,6 +115,14 @@ EdgeEpistasis::EdgeEpistasis(Data data_obj, Edges edge_obj, Mapping map_obj,
 
   // init the output filestream.
   output_file = output_filename;
+
+  // write output message to indicate encoding of interactions.
+  if (encode_or)
+  {
+    std::cout << "Encoding interactions with OR" << std::endl;  
+  }else{
+    std::cout << "Encoding interactions with AND" << std::endl;  
+  }
 }
 
 
@@ -212,126 +218,69 @@ interval_supports EdgeEpistasis::make_gene_intervals(std::string gene_name)
       data.matrix.block(snp_ids.front(), 0, snp_ids.size(), data.n_samples); 
 
   // Find the intervals.
-  interval_supports gene_supports = find_intervals(tmp_matrix);
+  interval_supports gene_supports = intervals_depth_first(tmp_matrix);
 
   return gene_supports;
 }
 
-
 /*
-  Enumerates all intervals in matrix mat, assuming that rows are ordered 
-  according to genetic location of SNPs.
-  Starts by first enumerating all intervals of length 1, and continues to 
-  creater longer intervals by combination of intervals in previous length-
-  layers.
+  Enumerates all intervals in matrix mat in a depth-first order, i.e. for
+  every starting position, all possible length-intervals are generated.
+  Using a depth-first enumeration of the intervals we can stop growing
+  intervals once they become untestable and we can enumerate only closed
+  intervals, i.e. those that actually change support when grown.
 */
-interval_supports EdgeEpistasis::find_intervals(const Eigen::MatrixXd& mat)
+interval_supports EdgeEpistasis::intervals_depth_first(
+    const Eigen::MatrixXd& mat)
 {
-  // Init the containers to store the data.
+
   interval_supports intervals;
-  interval_queue testable_queue;
 
-  // Find the testable intervals in the first length-layer.
-  intervals_layer_1(mat, intervals, testable_queue);
+  // Iterate over all starting positions tau.
+  for (int tau=0; tau<mat.rows(); tau++)
+  {
+    // Init the support to 0.
+    Eigen::MatrixXd support = Eigen::MatrixXd::Zero(1, mat.row(tau).size());
 
-  // Find longer intervals.
-  intervals_layer_x(intervals, testable_queue);
+    // Init the length of the first interval to 0.
+    int len = 0;
+    
+    // Init the sum of the support.
+    int supp_count = support.sum();
 
-  // return the testable intervals only.
+    while (tau+len < mat.rows())
+    {
+      support = binary_or(mat.row(tau+len), support);
+      len += 1;
+      
+      // check if the support has changed from one length to the next. Only 
+      // report, if it did.
+      if (supp_count == support.sum())
+      {
+        continue;
+      }else{
+        supp_count = support.sum();
+      }
+
+      // Compute the per-table support and minimum p-value.
+      Eigen::VectorXd pt_support = \
+        tarone.compute_per_table_support(support);
+      double min_pv = tarone.compute_minpval(pt_support);
+
+      // Check if the support is prunable. If it is, we do not enumerate any
+      // super-intervals.
+      if (!tarone.is_prunable(pt_support)) 
+      {
+        std::string key = std::to_string(tau) + "_" + std::to_string(len);
+        intervals[key] = support;
+      }
+    }
+  }
+
   return intervals;
 }
 
 
-/*
-  Initialize all intervals of length 1 that are not prunable.
-*/
-void EdgeEpistasis::intervals_layer_1(const Eigen::MatrixXd& mat, 
-                                      interval_supports& intervals, 
-                                      interval_queue& testable_queue)
-{
-
-  // Add all intervals of length 1, if they are testable.
-  for (int i=0; i<mat.rows(); i++)
-  {
-
-    // Compute the per-table support and corresponding minimum p-value.
-    Eigen::VectorXd pt_support = \
-        tarone.compute_per_table_support(mat.row(i));
-    double min_pv = tarone.compute_minpval(pt_support);
-
-    // Here, we do not process the individual intervals, since we only want
-    // to account for pairwise interactions.
-    if (!tarone.is_prunable(pt_support)) 
-    {
-      std::string key = std::to_string(i) + "_" + std::to_string(1);
-      intervals[key] = mat.row(i);
-      testable_queue.push_back(std::make_tuple(i, 1));
-    }
-  }
-
-}
-
-
-/*
-  Function to find intervals of length>1 by combining lower-order intervals.
-*/
-void EdgeEpistasis::intervals_layer_x(interval_supports& intervals, 
-                                      interval_queue& testable_queue)
-{
-
-  int length_layer = 2;
-
-  while (!testable_queue.empty())
-  {
-    // get the next element.
-    std::tuple<int, int> tmp_interval = testable_queue.front();
-    testable_queue.pop_front();
-    int tmp_start = std::get<0>(tmp_interval);
-    int tmp_len = std::get<1>(tmp_interval);
-
-    if (length_layer == tmp_len)
-    {
-      length_layer += 1;
-    }
-
-    // stop if the maximal length layer has been explored.
-    if (max_length > 0 && length_layer > max_length)
-    {
-      break;
-    }
-
-    // grow the interval by combining the two previous ones.
-    std::string prev_key = std::to_string(tmp_start-1) + "_" \
-                         + std::to_string(tmp_len);
-    std::string curr_key = std::to_string(tmp_start) + "_" \
-                         + std::to_string(tmp_len);                
-
-    // If the previous interval is in intervals, we can create the combination
-    // (this is not the case if, for example, the previous interval was
-    // prunable, or it exceeds the boundaries of the gene).                         
-    if (intervals.find(prev_key) != intervals.end())
-    {
-      // Compute the joint support of the two intervals.
-      Eigen::MatrixXd support = binary_or(intervals[prev_key], 
-                                          intervals[curr_key]);
-
-      // Compute the per-table support and corresponding minimum p-value.
-      Eigen::VectorXd pt_support = tarone.compute_per_table_support(support);
-      double min_pv = tarone.compute_minpval(pt_support);
-
-      // Here, we do not process the individual intervals, since we only want
-      // to account for pairwise interactions
-      if (!tarone.is_prunable(pt_support)) 
-      {
-        // create the key and store it in the intervals, as well as the queue.
-        std::string key = std::to_string(tmp_start-1) + "_" \
-                        + std::to_string(length_layer);
-        intervals[key] = support;
-        testable_queue.push_back(std::make_tuple(tmp_start-1, length_layer));
-      }
-    }
-  }
-}
 
 
 /*
@@ -356,8 +305,14 @@ void EdgeEpistasis::test_interval_combinations(interval_supports gene_0_itvl,
       std::string key1 = it1->first;
       Eigen::MatrixXd supp1 = it1->second;
 
-      // Compute the binary or between the two interval-supports.
-      Eigen::MatrixXd support = binary_or(supp0, supp1);
+      // Compute the binary support of the interaction of interval-supports.
+      Eigen::MatrixXd support;
+      if (encode_or == true)
+      {
+        support = binary_or(supp0, supp1);  
+      }else{
+        support = binary_and(supp0, supp1);  
+      }
 
       // Compute the per-table support and corresponding minimum p-value.
       Eigen::VectorXd pt_support = tarone.compute_per_table_support(support);
