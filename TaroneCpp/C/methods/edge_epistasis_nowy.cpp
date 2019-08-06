@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-09 14:13:20
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-08-06 21:00:26
+* @Last Modified time: 2019-08-06 21:30:30
 */
 
 
@@ -58,6 +58,13 @@ class EdgeEpistasis
 
     // The Tarone object.
     TaroneCMH tarone;
+
+    // -----------------------------------------------------------------------
+    // TMP: Include a counter to check for unique supports.
+    std::set<std::vector<int>> support_checker;
+    // TMP: Counter of how many supports have been computed from scratch.
+    long long support_counter = 0;
+    // -----------------------------------------------------------------------
 
     // The output file.
     std::string output_file;
@@ -148,7 +155,7 @@ void EdgeEpistasis::process_edges()
   for (int i=0; i<edges.n_edges; i++)
   {
 
-    std::cout << "@ edge " << i+1 << " of " << edges.n_edges << "\r";
+    std::cout << "@ edge " << i+1 << " of " << edges.n_edges << ", "; // << "\r";
 
     // Get the gene string-names of the genes adjacent to the edge.
     std::string gene_0_str = edges.edges_str[i][0];
@@ -188,6 +195,13 @@ void EdgeEpistasis::process_edges()
                                gene_0_str, gene_1_str,
                                out_stream);
 
+    // -----------------------------------------------------------------------
+    // TMP: print the number of unique supports, and the number of supports
+    // computed.
+    std::cout << "Number of uniq supports: " << support_checker.size();
+    std::cout << ", Number of processed supports: " << support_counter;
+    std::cout << std::endl;
+    // -----------------------------------------------------------------------
   }
 
   std::cout << edges.n_edges << " edges processed. Finishing. " << std::endl;
@@ -313,6 +327,14 @@ void EdgeEpistasis::test_interval_combinations(interval_supports gene_0_itvl,
       }else{
         support = binary_and(supp0, supp1);  
       }
+
+      // -----------------------------------------------------------------------
+      // TMP: add the current support to the support checker.
+      Eigen::VectorXd sup(Eigen::Map<Eigen::VectorXd>(support.data(), 
+                                                      support.cols()*support.rows()));
+      support_checker.insert(eigen_to_vec(sup));
+      support_counter += 1;
+      // -----------------------------------------------------------------------
 
       // Compute the per-table support and corresponding minimum p-value.
       Eigen::VectorXd pt_support = tarone.compute_per_table_support(support);
