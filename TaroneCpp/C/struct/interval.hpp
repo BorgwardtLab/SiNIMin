@@ -16,8 +16,13 @@ public:
   {
   }
 
-  value_type start() const { return _start; }
-  value_type end() const { return _end; }
+  value_type start() const noexcept { return _start; }
+  value_type end() const noexcept { return _end; }
+
+  bool operator==(const Interval& other) const noexcept
+  {
+    return _start == other._start && _end == other._end;
+  }
 
 private:
   value_type _start = 0;
