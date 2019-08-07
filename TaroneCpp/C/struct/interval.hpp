@@ -30,7 +30,7 @@ namespace std
   {
     using value_type = Interval::value_type;
 
-    std::size_t operator()(const Interval& interval)
+    std::size_t operator()(const Interval& interval) const
     {
       return hash<value_type>()(interval.start()) ^ hash<value_type>()(interval.end());
     }
