@@ -2,6 +2,7 @@
 #define INTERVAL_HPP__
 
 #include <functional>
+#include <iostream>
 
 class Interval
 {
@@ -40,6 +41,12 @@ namespace std
       return hash<value_type>()(interval.start()) ^ hash<value_type>()(interval.end());
     }
   };
+  
+  ostream& operator<<(ostream& o, const Interval& interval)
+  {
+    o << "[" << interval.start() << ":" << interval.end() << "]";
+    return o;
+  }
 }
 
 #endif
