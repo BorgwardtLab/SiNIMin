@@ -32,7 +32,7 @@ namespace std
 
     std::size_t operator()(const Interval& interval)
     {
-      return hash<value_type>(interval.start()) ^ hash<value_type>(interval.end());
+      return hash<value_type>()(interval.start()) ^ hash<value_type>()(interval.end());
     }
   };
 }
