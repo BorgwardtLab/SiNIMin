@@ -20,9 +20,19 @@ public:
   value_type start() const noexcept { return _start; }
   value_type end() const noexcept { return _end; }
 
+  bool contains(value_type x) const noexcept
+  {
+    return _start <= x && _x <= _end;
+  }
+
   bool operator==(const Interval& other) const noexcept
   {
     return _start == other._start && _end == other._end;
+  }
+
+  bool operator!=(const Interval& other) const noexcept
+  {
+    return !this->operator==(other);
   }
 
 private:
@@ -41,7 +51,7 @@ namespace std
       return hash<value_type>()(interval.start()) ^ hash<value_type>()(interval.end());
     }
   };
-  
+
   ostream& operator<<(ostream& o, const Interval& interval)
   {
     o << "[" << interval.start() << ":" << interval.end() << "]";
