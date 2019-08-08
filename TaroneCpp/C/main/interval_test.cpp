@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <iostream>
 #include <unordered_map>
+#include <vector>
 
 /**
   Auxiliary function for removing (erasing) elements from an (unordered)
@@ -60,4 +61,10 @@ int main(int, char**)
             << interval_map.size()
             << " intervals"
             << std::endl;
+
+  std::vector<Interval> intervals = {I4, I3, I2, I1};
+  std::sort(intervals.begin(), intervals.end());
+
+  for(auto&& interval : intervals)
+    std::cout << interval << "\n";
 }

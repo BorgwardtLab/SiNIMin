@@ -25,6 +25,14 @@ public:
     return _start <= x && x <= _end;
   }
 
+  bool operator<(const Interval& other ) const noexcept
+  {
+    if(_start == other._start)
+      return _end < other._end;
+    else
+      return _start < other._start;
+  }
+
   bool operator==(const Interval& other) const noexcept
   {
     return _start == other._start && _end == other._end;
