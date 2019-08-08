@@ -22,7 +22,7 @@ public:
 
   bool contains(value_type x) const noexcept
   {
-    return _start <= x && _x <= _end;
+    return _start <= x && x <= _end;
   }
 
   bool operator==(const Interval& other) const noexcept
