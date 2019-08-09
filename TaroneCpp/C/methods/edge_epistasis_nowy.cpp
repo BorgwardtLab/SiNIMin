@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-09 14:13:20
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-08-09 10:54:27
+* @Last Modified time: 2019-08-09 13:59:31
 */
 
 
@@ -10,6 +10,7 @@
 #define _edge_epistasis_cpp_
 
 #include <iostream>
+#include <iterator>
 
 
 // Include C++ data classes.
@@ -23,15 +24,20 @@
 #include "../struct/data.cpp"
 #include "../struct/edges.cpp"
 #include "../struct/mapping.cpp"
+#include "../struct/interval.hpp"
+
 #include "../struct/tarone_cmh.cpp"
 #include "../utils/utils.cpp"
+
 
 
 // Interval map, with keys indicating the starting position and length, values
 // correspond to the full support of the interval.
 
 // This should be replaced by Bastian's Interval class.
-typedef std::unordered_map< std::string, Eigen::MatrixXd> interval_supports;
+// typedef std::unordered_map< std::string, Eigen::MatrixXd> interval_map;
+
+typedef std::unordered_map< Interval, Eigen::MatrixXd> interval_map;
 
 
 /*
@@ -62,6 +68,14 @@ class EdgeEpistasis
     std::set<std::vector<int>> support_checker;
     // TMP: Counter of how many supports have been computed from scratch.
     long long support_counter = 0;
+
+    // unordered map that contains the minimum p-value, whether or not
+    // the support is prunable, and the p-value.
+    // vector: [min-pv, prunable (bool), pval]
+    // std::unordered_map<std::string, std::vector> support_map;
+
+    // count the prunability criterion.
+    int prune_count = 0;
     // -----------------------------------------------------------------------
 
     // The output file.
@@ -84,15 +98,15 @@ class EdgeEpistasis
   private:
 
     // Function to call generation of all intervals, using only gene name.
-    interval_supports make_gene_intervals(std::string gene_name);
+    interval_map make_gene_intervals(std::string gene_name);
 
     // Compute the supports of all intervals within a gene in depth-first 
     // search.
-    interval_supports intervals_depth_first(const Eigen::MatrixXd& mat);
+    interval_map intervals_depth_first(const Eigen::MatrixXd& mat);
 
     // Test combinations of intervals between two adjacent genes.
-    void test_interval_combinations(interval_supports gene_0_itvl,
-                                    interval_supports gene_1_itvl,
+    void test_interval_combinations(interval_map gene_0_itvl,
+                                    interval_map gene_1_itvl,
                                     std::string gene_0_name,
                                     std::string gene_1_name,
                                     std::ofstream& out_file);
@@ -139,15 +153,15 @@ void EdgeEpistasis::process_edges()
 {
 
   // Unordered map to store the intervals. Each key will correspond to a gene,
-  // each value will contain an object 'interval_supports', which is again an
+  // each value will contain an object 'interval_map', which is again an
   // unordered map, that contains as keys the intervals (string-formatted: 
   // "start_length"), and a matrix representing the binary meta-vector of that
   // interval.
-  // std::unordered_map<int, interval_supports> gene_intervals;
+  // std::unordered_map<int, interval_map> gene_intervals;
 
   // This can be replaced by a vector of invervals, and we can access them by
   // index.
-  std::vector<interval_supports> gene_intervals(edges.n_nodes);
+  std::vector<interval_map> gene_intervals(edges.n_nodes);
 
   // Initialize a vector of zeros that will keep track of whether or not
   // intervals at that gene have been enumerated or not.
@@ -186,17 +200,19 @@ void EdgeEpistasis::process_edges()
       continue;
     }
 
+    // If the intervals for gene0 have not been enumerated yet, do so.
     if (intervals_enumerated[gene_0_int] == 0)
     {
       gene_intervals[gene_0_int] = make_gene_intervals(gene_0_str);
       intervals_enumerated[gene_0_int] = 1;
     }
 
+    // If the intervals for gene1 have not been enumerated yet, do so.
     if (intervals_enumerated[gene_1_int] == 0)
     {
       gene_intervals[gene_1_int] = make_gene_intervals(gene_1_str);
       intervals_enumerated[gene_1_int] = 1;
-    }
+    }    
 
     // Do the pairwise testing of all intervals in source/sink.
     test_interval_combinations(gene_intervals[gene_0_int],
@@ -214,8 +230,10 @@ void EdgeEpistasis::process_edges()
   }
 
   std::cout << edges.n_edges << " edges processed. Finishing. " << std::endl;
-}
 
+  std::cout << "Number of processed supports: " << support_counter << std::endl;
+  std::cout << "Number of unique supports: " << support_checker.size() << std::endl;
+}
 
 
 
@@ -230,7 +248,7 @@ void EdgeEpistasis::process_edges()
   check if this works without problems when combining intervals later on, when
   increasing the length of intervals, as I rely on the distance being '1').
 */
-interval_supports EdgeEpistasis::make_gene_intervals(std::string gene_name)
+interval_map EdgeEpistasis::make_gene_intervals(std::string gene_name)
 {
 
   // The SNP-ids.
@@ -241,10 +259,12 @@ interval_supports EdgeEpistasis::make_gene_intervals(std::string gene_name)
       data.matrix.block(snp_ids.front(), 0, snp_ids.size(), data.n_samples); 
 
   // Find the intervals.
-  interval_supports gene_supports = intervals_depth_first(tmp_matrix);
+  interval_map gene_supports = intervals_depth_first(tmp_matrix);
 
   return gene_supports;
 }
+
+
 
 /*
   Enumerates all intervals in matrix mat in a depth-first order, i.e. for
@@ -253,11 +273,11 @@ interval_supports EdgeEpistasis::make_gene_intervals(std::string gene_name)
   intervals once they become untestable and we can enumerate only closed
   intervals, i.e. those that actually change support when grown.
 */
-interval_supports EdgeEpistasis::intervals_depth_first(
+interval_map EdgeEpistasis::intervals_depth_first(
     const Eigen::MatrixXd& mat)
 {
 
-  interval_supports intervals;
+  interval_map intervals;
 
   // Iterate over all starting positions tau.
   for (int tau=0; tau<mat.rows(); tau++)
@@ -294,8 +314,8 @@ interval_supports EdgeEpistasis::intervals_depth_first(
       // super-intervals.
       if (!tarone.is_prunable(pt_support)) 
       {
-        std::string key = std::to_string(tau) + "_" + std::to_string(len);
-        intervals[key] = support;
+        Interval tmp_int = Interval(tau, len);
+        intervals[tmp_int] = support;
       }
     }
   }
@@ -306,63 +326,192 @@ interval_supports EdgeEpistasis::intervals_depth_first(
 
 
 
+// /*
+//   Tests all combinations of intervals between gene0 and gene1.
+// */
+// void EdgeEpistasis::test_interval_combinations(interval_map gene_0_itvl,
+//                                                interval_map gene_1_itvl,
+//                                                std::string gene_0_name,
+//                                                std::string gene_1_name,
+//                                                std::ofstream& out_file)
+// {
+
+//   for ( auto it0 = gene_0_itvl.begin(); it0 != gene_0_itvl.end(); ++it0 )
+//   {
+//     // Get the intervals in gene0.
+//     std::string key0 = it0->first;
+//     Eigen::MatrixXd supp0 = it0->second;
+
+//     for (auto it1=gene_1_itvl.begin(); it1!=gene_1_itvl.end(); ++it1)
+//     {
+//       // Get the intervals in gene1.
+//       std::string key1 = it1->first;
+//       Eigen::MatrixXd supp1 = it1->second;
+
+//       // Compute the binary support of the interaction of interval-supports.
+//       Eigen::MatrixXd support;
+//       if (encode_or == true)
+//       {
+//         support = binary_or(supp0, supp1);  
+//       }else{
+//         support = binary_and(supp0, supp1);  
+//       }
+
+//       // // -----------------------------------------------------------------------
+//       // // TMP: add the current support to the support checker.
+//       // Eigen::VectorXd sup(Eigen::Map<Eigen::VectorXd>(support.data(), 
+//       //                                                 support.cols()*support.rows()));
+//       // support_checker.insert(eigen_to_vec(sup));
+//       // support_counter += 1;
+//       // // -----------------------------------------------------------------------
+
+//       // Compute the per-table support and corresponding minimum p-value.
+//       Eigen::VectorXd pt_support = tarone.compute_per_table_support(support);
+//       double min_pv = tarone.compute_minpval(pt_support);
+
+//       // Here we do adapt the threshold.
+//       if (tarone.is_testable(min_pv))
+//       {
+//         tarone.process_testable(min_pv);
+//       }
+//       if (!tarone.is_prunable(pt_support)) 
+//       {
+//         // Compute the p-value.
+//         int a = tarone.compute_supported_cases(support, data.labels);
+//         double pvalue = tarone.compute_pval(a, pt_support);
+
+//         // Write the interval combination to the output directory.
+//         out_file << pvalue << "," << min_pv << "," << gene_0_name << ",";
+//         out_file << key0 << "," << gene_1_name << "," << key1 << std::endl;
+//       }
+//     }
+//   }
+// }
+
+
 /*
   Tests all combinations of intervals between gene0 and gene1.
+  We explore the intervals in a depth-first manner, as this allows us to 
+  exploit monotonicities in the support-space.
 */
-void EdgeEpistasis::test_interval_combinations(interval_supports gene_0_itvl,
-                                               interval_supports gene_1_itvl,
+void EdgeEpistasis::test_interval_combinations(interval_map gene_0_itvl,
+                                               interval_map gene_1_itvl,
                                                std::string gene_0_name,
                                                std::string gene_1_name,
                                                std::ofstream& out_file)
 {
 
-  for ( auto it0 = gene_0_itvl.begin(); it0 != gene_0_itvl.end(); ++it0 )
+  // Define the supports of the interval_0 and interval_1 and their 
+  // combination.
+  Eigen::MatrixXd supp0;
+  Eigen::MatrixXd supp1;
+  Eigen::MatrixXd support;
+
+  // define the per-table support.
+  Eigen::VectorXd pt_support;
+
+  // Get the number of SNPs per gene
+  int n_snps_0 = mapping.geneview_map_idx[gene_0_name].size();
+  int n_snps_1 = mapping.geneview_map_idx[gene_1_name].size();
+
+  // Start to iterate the intervals in a depth-first search.
+  for (int tau_0=0; tau_0<=n_snps_0; tau_0 ++ )
   {
-    // Get the intervals in gene0.
-    std::string key0 = it0->first;
-    Eigen::MatrixXd supp0 = it0->second;
+    // Init vector to keep track at which length the previous length-interval
+    // was prunable with the next interval.
+    std::vector<int> prunable(n_snps_1, n_snps_1+1);
 
-    for (auto it1=gene_1_itvl.begin(); it1!=gene_1_itvl.end(); ++it1)
+    for (int len_0=1; len_0<=n_snps_0-tau_0; len_0 ++)
     {
-      // Get the intervals in gene1.
-      std::string key1 = it1->first;
-      Eigen::MatrixXd supp1 = it1->second;
+      // Create the current interval.
+      Interval interval_0 = Interval(tau_0, len_0);
 
-      // Compute the binary support of the interaction of interval-supports.
-      Eigen::MatrixXd support;
-      if (encode_or == true)
+      // Continue if it is not present in the current list of intervals.
+      if (gene_0_itvl.find(interval_0) == gene_0_itvl.end())
       {
-        support = binary_or(supp0, supp1);  
-      }else{
-        support = binary_and(supp0, supp1);  
+        continue;
       }
 
-      // // -----------------------------------------------------------------------
-      // // TMP: add the current support to the support checker.
-      // Eigen::VectorXd sup(Eigen::Map<Eigen::VectorXd>(support.data(), 
-      //                                                 support.cols()*support.rows()));
-      // support_checker.insert(eigen_to_vec(sup));
-      // support_counter += 1;
-      // // -----------------------------------------------------------------------
-
-      // Compute the per-table support and corresponding minimum p-value.
-      Eigen::VectorXd pt_support = tarone.compute_per_table_support(support);
-      double min_pv = tarone.compute_minpval(pt_support);
-
-      // Here we do adapt the threshold.
-      if (tarone.is_testable(min_pv))
+      // Get the support of interval_0 from the map.
+      supp0 = gene_0_itvl[interval_0];
+      
+      // Iterate over the intervals in the second gene.
+      for (int tau_1=0; tau_1<n_snps_1; tau_1++)
       {
-        tarone.process_testable(min_pv);
-      }
-      if (!tarone.is_prunable(pt_support)) 
-      {
-        // Compute the p-value.
-        int a = tarone.compute_supported_cases(support, data.labels);
-        double pvalue = tarone.compute_pval(a, pt_support);
+        for (int len_1=1; len_1<=n_snps_1-tau_1; len_1++)
+        {
 
-        // Write the interval combination to the output directory.
-        out_file << pvalue << "," << min_pv << "," << gene_0_name << ",";
-        out_file << key0 << "," << gene_1_name << "," << key1 << std::endl;
+          // Check if a sub-interval of (tau_0, len_0) has been found prunable
+          // with the current interval (tau_1, len_1). Sub-interval means with
+          // same starting point, but different length.
+          if (len_1 >= prunable[tau_1])
+          {
+            prune_count += 1;
+            break;
+          }
+
+          // Create the current interval.
+          Interval interval_1 = Interval(tau_1, len_1);
+
+          // Continue if it is not present in the current list of intervals.
+          if (gene_1_itvl.find(interval_1) == gene_1_itvl.end())
+          {
+            continue;
+          }
+
+          supp1 = gene_1_itvl[interval_1];
+
+          // Compute the binary support of the pattern:
+          if (encode_or == true)
+          {
+            support = binary_or(supp0, supp1);  
+          }else{
+            support = binary_and(supp0, supp1);  
+          }
+
+          // TMP: create vector of the support, and add it to the 
+          // support-checker function.
+          Eigen::VectorXd sup(Eigen::Map<Eigen::VectorXd>
+                              (support.data(), support.cols()*support.rows()));
+          std::vector<int> sup_vec = eigen_to_vec(sup);
+          support_checker.insert(sup_vec);
+          support_counter += 1;
+
+          // TMP turn vector into string:
+          std::string sup_str(sup_vec.begin(), sup_vec.end());
+
+          std::stringstream result;
+          std::copy(sup_vec.begin(), sup_vec.end(), 
+                    std::ostream_iterator<int>(result, ""));
+
+          std::cout << "as string: " << result.str() << std::endl;
+          std::exit(-1);
+
+          // Compute the per-table support and corresponding minimum p-value.
+          pt_support = tarone.compute_per_table_support(support);
+          double min_pv = tarone.compute_minpval(pt_support);
+
+          if (tarone.is_testable(min_pv))
+          {
+            tarone.process_testable(min_pv);
+          }
+          if (!tarone.is_prunable(pt_support)) 
+          {
+            // Compute the p-value.
+            int a = tarone.compute_supported_cases(support, data.labels);
+            double pvalue = tarone.compute_pval(a, pt_support);
+
+            // Write the interval combination to the output directory.
+            out_file << pvalue << "," << min_pv << "," << gene_0_name << ",";
+            out_file << interval_0 << "," << gene_1_name << "," << interval_1;
+            out_file << std::endl;
+          }else{
+            // If the pattern is prunable, we mark the length in the prunable
+            // vector at that starting point for the current interval_0 with
+            // starting point in tau_0.
+            prunable[tau_1] = len_1;
+          }
+        }
       }
     }
   }

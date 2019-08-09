@@ -62,7 +62,7 @@ namespace std
 
   ostream& operator<<(ostream& o, const Interval& interval)
   {
-    o << "[" << interval.start() << ":" << interval.end() << "]";
+    o << interval.start() << "_" << interval.end();
     return o;
   }
 }

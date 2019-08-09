@@ -1,7 +1,7 @@
 # @Author: guanja
 # @Date:   2019-08-06 20:49:46
 # @Last Modified by:   guanja
-# @Last Modified time: 2019-08-09 10:05:17
+# @Last Modified time: 2019-08-09 11:13:57
 
 
 ROOT="/home/guanja/projects/cpkgs/TaroneCpp/TaroneCpp"
@@ -20,6 +20,8 @@ N_THREADS=1
 timestamp=$(date +%s)
 
 OUT_PR="${ROOT}/examples/output_athal/edgeEpi_avrB_${timestamp}"
+
+
 
 "${EXEC}" \
   -i "${DAT_FN}" \
