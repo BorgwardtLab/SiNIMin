@@ -29,7 +29,7 @@ template<typename Map, typename Pred> void erase_if(Map& map, Pred pred)
 int main(int, char**)
 {
   Interval I1;
-  Interval I2(2, 3);
+  Interval I2(2, 9);
   Interval I3(2, 7);
   Interval I4(3, 5);
 

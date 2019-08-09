@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-09 14:13:20
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-08-06 21:30:30
+* @Last Modified time: 2019-08-09 10:54:27
 */
 
 
@@ -29,11 +29,9 @@
 
 // Interval map, with keys indicating the starting position and length, values
 // correspond to the full support of the interval.
-typedef std::unordered_map< std::string, Eigen::MatrixXd> interval_supports;
 
-// Tuple of form (interval start, interval length), for faster enumeration of
-// intervals.
-typedef std::deque<std::tuple<int, int>> interval_queue;
+// This should be replaced by Bastian's Interval class.
+typedef std::unordered_map< std::string, Eigen::MatrixXd> interval_supports;
 
 
 /*
@@ -145,7 +143,15 @@ void EdgeEpistasis::process_edges()
   // unordered map, that contains as keys the intervals (string-formatted: 
   // "start_length"), and a matrix representing the binary meta-vector of that
   // interval.
-  std::unordered_map<int, interval_supports> gene_intervals;
+  // std::unordered_map<int, interval_supports> gene_intervals;
+
+  // This can be replaced by a vector of invervals, and we can access them by
+  // index.
+  std::vector<interval_supports> gene_intervals(edges.n_nodes);
+
+  // Initialize a vector of zeros that will keep track of whether or not
+  // intervals at that gene have been enumerated or not.
+  std::vector<int> intervals_enumerated(edges.n_nodes);
 
   // Generate the output file.
   std::ofstream out_stream(output_file);
@@ -155,7 +161,7 @@ void EdgeEpistasis::process_edges()
   for (int i=0; i<edges.n_edges; i++)
   {
 
-    std::cout << "@ edge " << i+1 << " of " << edges.n_edges << ", "; // << "\r";
+    std::cout << "@ edge " << i+1 << " of " << edges.n_edges << "\r";
 
     // Get the gene string-names of the genes adjacent to the edge.
     std::string gene_0_str = edges.edges_str[i][0];
@@ -169,24 +175,27 @@ void EdgeEpistasis::process_edges()
     if (mapping.geneview_map_idx.find(gene_0_str) == \
         mapping.geneview_map_idx.end())
     {
+      intervals_enumerated[gene_0_int] = 9;
       continue;
     }
+
     if (mapping.geneview_map_idx.find(gene_1_str) == \
         mapping.geneview_map_idx.end())
     {
+      intervals_enumerated[gene_1_int] = 9;
       continue;
     }
 
-    // Check if the intervals for gene_0 and gene_1 have already been
-    // created. If not, do so.
-    if (gene_intervals.find(gene_0_int) == gene_intervals.end())
+    if (intervals_enumerated[gene_0_int] == 0)
     {
       gene_intervals[gene_0_int] = make_gene_intervals(gene_0_str);
+      intervals_enumerated[gene_0_int] = 1;
     }
 
-    if (gene_intervals.find(gene_1_int) == gene_intervals.end())
+    if (intervals_enumerated[gene_1_int] == 0)
     {
       gene_intervals[gene_1_int] = make_gene_intervals(gene_1_str);
+      intervals_enumerated[gene_1_int] = 1;
     }
 
     // Do the pairwise testing of all intervals in source/sink.
@@ -195,13 +204,13 @@ void EdgeEpistasis::process_edges()
                                gene_0_str, gene_1_str,
                                out_stream);
 
-    // -----------------------------------------------------------------------
-    // TMP: print the number of unique supports, and the number of supports
-    // computed.
-    std::cout << "Number of uniq supports: " << support_checker.size();
-    std::cout << ", Number of processed supports: " << support_counter;
-    std::cout << std::endl;
-    // -----------------------------------------------------------------------
+    // // -----------------------------------------------------------------------
+    // // TMP: print the number of unique supports, and the number of supports
+    // // computed.
+    // std::cout << "Number of uniq supports: " << support_checker.size();
+    // std::cout << ", Number of processed supports: " << support_counter;
+    // std::cout << std::endl;
+    // // -----------------------------------------------------------------------
   }
 
   std::cout << edges.n_edges << " edges processed. Finishing. " << std::endl;
@@ -328,13 +337,13 @@ void EdgeEpistasis::test_interval_combinations(interval_supports gene_0_itvl,
         support = binary_and(supp0, supp1);  
       }
 
-      // -----------------------------------------------------------------------
-      // TMP: add the current support to the support checker.
-      Eigen::VectorXd sup(Eigen::Map<Eigen::VectorXd>(support.data(), 
-                                                      support.cols()*support.rows()));
-      support_checker.insert(eigen_to_vec(sup));
-      support_counter += 1;
-      // -----------------------------------------------------------------------
+      // // -----------------------------------------------------------------------
+      // // TMP: add the current support to the support checker.
+      // Eigen::VectorXd sup(Eigen::Map<Eigen::VectorXd>(support.data(), 
+      //                                                 support.cols()*support.rows()));
+      // support_checker.insert(eigen_to_vec(sup));
+      // support_counter += 1;
+      // // -----------------------------------------------------------------------
 
       // Compute the per-table support and corresponding minimum p-value.
       Eigen::VectorXd pt_support = tarone.compute_per_table_support(support);
