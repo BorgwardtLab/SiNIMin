@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-04 17:39:39
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-08-09 15:36:55
+* @Last Modified time: 2019-08-09 18:01:50
 */
 
 #ifndef _utils_cpp_
@@ -54,6 +54,9 @@ Eigen::MatrixXd binary_or(Eigen::MatrixXd vec0, Eigen::MatrixXd vec1);
 
 //Compute the binary AND between two Matrices of dimension (1, n_samples).
 Eigen::MatrixXd binary_and(Eigen::MatrixXd vec0, Eigen::MatrixXd vec1);
+
+// creates a boolean vector from a Eigen::MatrixXd.
+std::vector<bool> make_bool_vec(const Eigen::MatrixXd& x);
 
 // Check if a file exists.
 void check_file(std::string filename);
@@ -226,6 +229,23 @@ Eigen::MatrixXd binary_and(Eigen::MatrixXd vec0, Eigen::MatrixXd vec1)
   }
   return vec_binary;
 }
+
+
+
+/*
+  creates a boolean vector from a Eigen::MatrixXd.
+*/ 
+std::vector<bool> make_bool_vec(const Eigen::MatrixXd& x)
+{
+  std::vector<bool> x_bool(x.size());
+  for (int i=0; i<x.size(); i++)
+  {
+    x_bool[i] = (bool)x(i);
+  }  
+  return x_bool;
+}
+    
+
 
 
 /*

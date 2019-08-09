@@ -1,7 +1,7 @@
 # @Author: guanja
 # @Date:   2019-08-06 20:49:46
 # @Last Modified by:   guanja
-# @Last Modified time: 2019-08-09 15:48:32
+# @Last Modified time: 2019-08-09 18:45:04
 
 
 ROOT="/home/guanja/projects/cpkgs/TaroneCpp/TaroneCpp"
@@ -15,11 +15,13 @@ LAB_FN="${ROOT}/examples/data_athal/avrB_Y.txt"
 MAP_FN="${ROOT}/examples/data_athal/avrB_snp_map.txt"
 SNP_FN="${ROOT}/examples/data_athal/avrB_snpID.txt"
 
-N_THREADS=1
+N_THREADS=20
 
 timestamp=$(date +%s)
 
-OUT_PR="${ROOT}/examples/output_athal/baseline/siniminWY_avrB_${timestamp}"
+OUT_PR="${ROOT}/examples/output_athal/siniminWY/"
+mkdir -p ${OUT_PR}
+OUT_PR+="siniminWY_avrB_${timestamp}"
 
 
 

@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-09 14:13:20
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-08-09 15:41:22
+* @Last Modified time: 2019-08-09 18:03:05
 */
 
 
@@ -74,6 +74,7 @@ class EdgeEpistasis
     // the support is prunable, and the p-value.
     // vector: [min-pv, prunable (bool), pval]
     std::unordered_map<std::string, Support> support_map;
+    std::unordered_map<std::vector<bool>, Support> support_map_2;
 
     // count the number of support-evaluations.
     int supp_eval_count = 0;
@@ -297,7 +298,7 @@ interval_map EdgeEpistasis::intervals_depth_first(
       // Compute the per-table support and minimum p-value.
       Eigen::VectorXd pt_support = \
         tarone.compute_per_table_support(support);
-      double min_pv = tarone.compute_minpval(pt_support);
+      // double min_pv = tarone.compute_minpval(pt_support);
 
       // Check if the support is prunable. If it is, we do not enumerate any
       // super-intervals.
@@ -457,13 +458,13 @@ void EdgeEpistasis::test_interval_combinations(interval_map gene_0_itvl,
             support = binary_and(supp0, supp1);  
           }
 
-          // Create a bitstring of the support, and use this as a key in the 
-          // map.
-          std::string bitstring = eigen_to_str(support);
+          // Create a boolean vector and see if this works better.
+          std::vector<bool> supp_bool = make_bool_vec(support);       
 
           // -------------------------------------------------------------------
           // If the current support has not been observed yet, process it.
-          if (support_map.find(bitstring) == support_map.end())
+          // if (support_map.find(bitstring) == support_map.end())
+          if (support_map_2.find(supp_bool) == support_map_2.end())
           {
             supp_eval_count += 1;
             // compute the per-table support.
@@ -486,13 +487,15 @@ void EdgeEpistasis::test_interval_combinations(interval_map gene_0_itvl,
 
             // create the support object and store it in the support map.
             Support tmp_sup(min_pv, evlpe, pvalue);
-            support_map[bitstring] = tmp_sup;
+            // support_map[bitstring] = tmp_sup;
+            support_map_2[supp_bool] = tmp_sup;
           }
-
 
           // -------------------------------------------------------------------
           // Compute the per-table support and corresponding minimum p-value.
-          Support sup_summary = support_map[bitstring];
+          // Support sup_summary = support_map[bitstring];
+          Support sup_summary = support_map_2[supp_bool];
+
 
           if (tarone.is_testable(sup_summary.min_pvalue()))
           {
