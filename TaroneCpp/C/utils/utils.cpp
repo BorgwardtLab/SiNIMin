@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-04 17:39:39
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-07-31 19:36:56
+* @Last Modified time: 2019-08-09 15:36:55
 */
 
 #ifndef _utils_cpp_
@@ -45,6 +45,9 @@ Eigen::VectorXd vec_to_eigen(const std::vector<T>&  x);
 
 // Transforms an Eigen::Vector to a std::vector;
 std::vector<int> eigen_to_vec(const Eigen::VectorXd& x);
+
+// Writes values in Eigen::vector to string;
+std::string eigen_to_str(const Eigen::MatrixXd&  x);
 
 // Compute the binary or between two vectors (matrices).
 Eigen::MatrixXd binary_or(Eigen::MatrixXd vec0, Eigen::MatrixXd vec1);
@@ -165,6 +168,21 @@ Eigen::VectorXd vec_to_eigen(const std::vector<T>&  x)
       y(i) = x[i];
     }
   return y;
+}
+
+
+/*
+  Transform an std::vector to an Eigen::VectorXd.
+*/
+std::string eigen_to_str(const Eigen::MatrixXd&  x)
+{
+  std::string tmp_str;
+
+  for(int i=0; i<x.size(); i++) 
+  {
+    tmp_str += std::to_string((int)x(i));
+  }
+  return tmp_str;
 }
 
 

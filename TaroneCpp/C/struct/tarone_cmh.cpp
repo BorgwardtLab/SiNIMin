@@ -2,7 +2,7 @@
 * @Author: Anja Gumpinger
 * @Date:   2018-11-13 19:32:54
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-07-11 13:30:10
+* @Last Modified time: 2019-08-09 14:56:27
 */
 
 #ifndef _tarone_cmh_cpp_
@@ -19,7 +19,8 @@
 /*
   Main TaroneCMH.
 */
-class TaroneCMH{
+class TaroneCMH
+{
 
   public:
     // Public members are accessible by anyone calling the function.
@@ -50,10 +51,25 @@ class TaroneCMH{
     double compute_minpval(Eigen::VectorXd pt_support);
     bool is_testable(double min_pv);
     void process_testable(double min_pv);
+
+    // function to determine whether the per-table support of a pattern is 
+    // prunable.
     bool is_prunable(Eigen::VectorXd x);
+
+    // function to determine whether the envelope of a pattern is prunable.
+    bool is_prunable(double envelope);
+
+    // function to compute the envelope of the per-table support.
+    float envelope(Eigen::VectorXd x);
+
     double compute_supported_cases(const Eigen::MatrixXd& support, 
                                    const Eigen::VectorXd& labels);
+
+    // Computes the per-table support of a support of length n_samples.
     Eigen::VectorXd compute_per_table_support(Eigen::MatrixXd support);
+
+    // Computes the CMH-pvalue using the cell count "a" and the per-table
+    // support.
     double compute_pval(int a, Eigen::VectorXd pt_support);
 
     // Function to write a summary of the tarone run.
@@ -294,6 +310,17 @@ bool TaroneCMH::is_testable(double min_pv)
 }
 
 
+// function to determine whether the envelope of a pattern is prunable.
+bool TaroneCMH::is_prunable(double envelope)
+{
+  if (envelope > delta_t()) 
+    {
+      return true;
+    }
+  return false;
+}
+
+
 /*
   given a p-value, find its 'bucket' (to count the number of testables).
   If the p-value is 0, the log10 is not defined, hence we automatically put 
@@ -525,6 +552,111 @@ bool TaroneCMH::is_prunable(Eigen::VectorXd x)
     Tcmh_max_corner_r : Tcmh_max_corner_l),1);
 
   return  min_pval > delta_t(); 
+}
+
+
+
+float TaroneCMH::envelope(Eigen::VectorXd x)
+{
+
+  // allocate memory.
+  std::vector<double> f_vals;
+  std::vector<double> g_vals;
+  std::vector<double> beta;
+  std::vector<int> idx_beta_sorted; 
+
+  double f_sum = 0;
+  double g_sum = 0;
+  double Tcmh_aux_corner;
+  double Tcmh_max_corner_r;
+  double Tcmh_max_corner_l;
+
+
+  // If for any of the tables, its margin x is smaller than the maximum of n 
+  // and N-n, then we cannot prune the set (we are not in the "top-right" 
+  // hypercorner)
+  for(int k=0; k<x.rows(); k++) 
+  {
+    if(x[k] < hypercorner_bnd[k]) return false;
+  }
+
+  // compute the righthandside values.
+  for (int k=0; k<x.rows(); k++)
+  {
+    if (x(k) < pt_samples(k))
+    {
+      double f = gammat[k] * (pt_samples(k)-x(k));
+      double g = gammabint[k] * x(k) * (1-((double)x(k))/pt_samples(k));
+      f_vals.push_back(f);
+      g_vals.push_back(g);
+      beta.push_back(g/f);
+    }
+  }
+
+  // get permutation of indices of beta values.
+  idx_beta_sorted = argsort(beta);
+
+  // compute CMH test statistic.
+  // Skip tables that only have one class, i.e. g_sum == 0.
+  f_sum = 0;
+  g_sum = 0;
+  Tcmh_max_corner_r = 0;
+  for(int k=0; k<beta.size(); k++)
+  {
+    f_sum += f_vals[idx_beta_sorted[k]];
+    g_sum += g_vals[idx_beta_sorted[k]];
+    if (g_sum == 0) 
+      {
+        continue;
+      }
+    Tcmh_aux_corner = (f_sum*f_sum)/g_sum;
+    Tcmh_max_corner_r = (Tcmh_max_corner_r >= Tcmh_aux_corner) ? 
+      Tcmh_max_corner_r : Tcmh_aux_corner; 
+  }
+
+  g_vals.clear();
+  f_vals.clear();
+  beta.clear();
+
+  // compute the lefthandside values.
+  for(int k=0; k<x.rows(); k++)
+  {
+    // Discard all dimensions for which x[k]==Nt[k], as they don't 
+    // contribute to the function neither in the numerator nor the 
+    // denominator.
+    if(x(k) < pt_samples(k))
+    {
+      double f = (1-gammat[k]) * (pt_samples(k)-x(k));
+      double g = gammabint[k] * x(k) * (1-((double)x(k))/pt_samples(k));
+      f_vals.push_back(f);
+      g_vals.push_back(g);  
+      beta.push_back(g/f);
+    }
+  }
+
+  // get permutation of indices of beta values.
+  idx_beta_sorted = argsort(beta);
+
+  f_sum = 0; 
+  g_sum = 0; 
+  Tcmh_max_corner_l = 0;
+  for(int k=0; k<beta.size(); k++)
+  {
+    f_sum += f_vals[idx_beta_sorted[k]];
+    g_sum += g_vals[idx_beta_sorted[k]];
+    if (g_sum == 0)
+      {
+        continue;
+      }
+    Tcmh_aux_corner = (f_sum*f_sum)/g_sum;
+    Tcmh_max_corner_l = (Tcmh_max_corner_l >= Tcmh_aux_corner) ? 
+      Tcmh_max_corner_l : Tcmh_aux_corner; 
+  }
+
+  double min_pval = Chi2_sf(((Tcmh_max_corner_r >= Tcmh_max_corner_l) ? 
+    Tcmh_max_corner_r : Tcmh_max_corner_l),1);
+
+  return  min_pval; 
 }
 
 

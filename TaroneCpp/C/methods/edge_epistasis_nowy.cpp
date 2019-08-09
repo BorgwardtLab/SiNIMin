@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-09 14:13:20
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-08-09 13:59:31
+* @Last Modified time: 2019-08-09 15:41:22
 */
 
 
@@ -25,6 +25,7 @@
 #include "../struct/edges.cpp"
 #include "../struct/mapping.cpp"
 #include "../struct/interval.hpp"
+#include "../struct/support.hpp"
 
 #include "../struct/tarone_cmh.cpp"
 #include "../utils/utils.cpp"
@@ -72,10 +73,10 @@ class EdgeEpistasis
     // unordered map that contains the minimum p-value, whether or not
     // the support is prunable, and the p-value.
     // vector: [min-pv, prunable (bool), pval]
-    // std::unordered_map<std::string, std::vector> support_map;
+    std::unordered_map<std::string, Support> support_map;
 
-    // count the prunability criterion.
-    int prune_count = 0;
+    // count the number of support-evaluations.
+    int supp_eval_count = 0;
     // -----------------------------------------------------------------------
 
     // The output file.
@@ -219,20 +220,8 @@ void EdgeEpistasis::process_edges()
                                gene_intervals[gene_1_int],
                                gene_0_str, gene_1_str,
                                out_stream);
-
-    // // -----------------------------------------------------------------------
-    // // TMP: print the number of unique supports, and the number of supports
-    // // computed.
-    // std::cout << "Number of uniq supports: " << support_checker.size();
-    // std::cout << ", Number of processed supports: " << support_counter;
-    // std::cout << std::endl;
-    // // -----------------------------------------------------------------------
   }
-
   std::cout << edges.n_edges << " edges processed. Finishing. " << std::endl;
-
-  std::cout << "Number of processed supports: " << support_counter << std::endl;
-  std::cout << "Number of unique supports: " << support_checker.size() << std::endl;
 }
 
 
@@ -446,7 +435,6 @@ void EdgeEpistasis::test_interval_combinations(interval_map gene_0_itvl,
           // same starting point, but different length.
           if (len_1 >= prunable[tau_1])
           {
-            prune_count += 1;
             break;
           }
 
@@ -469,40 +457,52 @@ void EdgeEpistasis::test_interval_combinations(interval_map gene_0_itvl,
             support = binary_and(supp0, supp1);  
           }
 
-          // TMP: create vector of the support, and add it to the 
-          // support-checker function.
-          Eigen::VectorXd sup(Eigen::Map<Eigen::VectorXd>
-                              (support.data(), support.cols()*support.rows()));
-          std::vector<int> sup_vec = eigen_to_vec(sup);
-          support_checker.insert(sup_vec);
-          support_counter += 1;
+          // Create a bitstring of the support, and use this as a key in the 
+          // map.
+          std::string bitstring = eigen_to_str(support);
 
-          // TMP turn vector into string:
-          std::string sup_str(sup_vec.begin(), sup_vec.end());
-
-          std::stringstream result;
-          std::copy(sup_vec.begin(), sup_vec.end(), 
-                    std::ostream_iterator<int>(result, ""));
-
-          std::cout << "as string: " << result.str() << std::endl;
-          std::exit(-1);
-
-          // Compute the per-table support and corresponding minimum p-value.
-          pt_support = tarone.compute_per_table_support(support);
-          double min_pv = tarone.compute_minpval(pt_support);
-
-          if (tarone.is_testable(min_pv))
+          // -------------------------------------------------------------------
+          // If the current support has not been observed yet, process it.
+          if (support_map.find(bitstring) == support_map.end())
           {
-            tarone.process_testable(min_pv);
+            supp_eval_count += 1;
+            // compute the per-table support.
+            pt_support = tarone.compute_per_table_support(support);
+
+            // compute the minimum p-value.
+            double min_pv = tarone.compute_minpval(pt_support);
+
+            // compute the envelope.
+            double evlpe = tarone.envelope(pt_support);
+
+            // Check if the current support is prunable.
+            double pvalue = 1.0;
+            if (!tarone.is_prunable(evlpe)) 
+            {
+              // Compute the p-value.
+              int a = tarone.compute_supported_cases(support, data.labels);
+              pvalue = tarone.compute_pval(a, pt_support);
+            }
+
+            // create the support object and store it in the support map.
+            Support tmp_sup(min_pv, evlpe, pvalue);
+            support_map[bitstring] = tmp_sup;
           }
-          if (!tarone.is_prunable(pt_support)) 
-          {
-            // Compute the p-value.
-            int a = tarone.compute_supported_cases(support, data.labels);
-            double pvalue = tarone.compute_pval(a, pt_support);
 
+
+          // -------------------------------------------------------------------
+          // Compute the per-table support and corresponding minimum p-value.
+          Support sup_summary = support_map[bitstring];
+
+          if (tarone.is_testable(sup_summary.min_pvalue()))
+          {
+            tarone.process_testable(sup_summary.min_pvalue());
+          }
+          if (!tarone.is_prunable(sup_summary.envelope())) 
+          {
             // Write the interval combination to the output directory.
-            out_file << pvalue << "," << min_pv << "," << gene_0_name << ",";
+            out_file << sup_summary.pvalue() << ",";
+            out_file << sup_summary.min_pvalue() << "," << gene_0_name << ",";
             out_file << interval_0 << "," << gene_1_name << "," << interval_1;
             out_file << std::endl;
           }else{
