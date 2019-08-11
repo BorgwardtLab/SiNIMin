@@ -1,10 +1,19 @@
 all: base
 base:
 	g++-6 -std=c++11 -I/usr/local/include/eigen3 \
-		-o ./compiled/edge_epistasis ./main/edge_epistasis.cpp
+		-o ./compiled/siniminFWER_test ./main/sinimin_fwer_test.cpp
 
-	g++-6 -std=c++11 -I/usr/local/include/eigen3 \
-		-o ./compiled/edge_epistasis_wy ./main/edge_epistasis_wy.cpp 
+# 	g++ -std=c++11 -Wall -Wextra -pedantic  \
+# 		-o ./compiled/interval_test ./main/interval_test.cpp
+
+# 	g++ -std=c++11 -Wall -Wextra -pedantic  \
+# 		-o ./compiled/support_test ./main/support_test.cpp
+
+# 	g++-6 -std=c++11 -I/usr/local/include/eigen3 \
+# 		-o ./compiled/edge_epistasis ./main/edge_epistasis.cpp
+
+# 	g++-6 -std=c++11 -I/usr/local/include/eigen3 \
+# 		-o ./compiled/edge_epistasis_wy ./main/edge_epistasis_wy.cpp 
 
 # 	g++-6 -std=c++11 -I/usr/local/include/eigen3 \
 # 		-o ./compiled/check_data_classes ./main/check_data_classes.cpp 
