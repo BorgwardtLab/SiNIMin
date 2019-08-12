@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-09 14:13:20
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-08-09 18:48:26
+* @Last Modified time: 2019-08-12 10:46:57
 */
 
 
@@ -275,6 +275,11 @@ interval_map EdgeEpistasisWY::intervals_depth_first(
 
     while (tau+len < mat.rows())
     {
+      if (max_length > 0 && len == max_length)
+      {
+        break;
+      }
+      
       support = binary_or(mat.row(tau+len), support);
       len += 1;
       

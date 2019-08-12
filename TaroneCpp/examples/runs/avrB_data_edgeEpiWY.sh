@@ -1,7 +1,7 @@
 # @Author: guanja
 # @Date:   2019-08-06 20:49:46
 # @Last Modified by:   guanja
-# @Last Modified time: 2019-08-12 10:50:03
+# @Last Modified time: 2019-08-12 10:50:25
 
 
 ROOT="/home/guanja/projects/cpkgs/TaroneCpp/TaroneCpp"
@@ -15,13 +15,13 @@ LAB_FN="${ROOT}/examples/data_athal/avrB_Y.txt"
 MAP_FN="${ROOT}/examples/data_athal/avrB_snp_map.txt"
 SNP_FN="${ROOT}/examples/data_athal/avrB_snpID.txt"
 
-N_THREADS=1
+N_THREADS=5
 
 timestamp=$(date +%s)
 
-OUT_PR="${ROOT}/examples/output_athal/edgeEpi" 
+OUT_PR="${ROOT}/examples/output_athal/edgeEpiWY" 
 mkdir -p "${OUT_PR}"
-OUT_PR+="/edgeEpi_avrB_${timestamp}"
+OUT_PR+="/edgeEpiWY_avrB_${timestamp}"
 
 
 
@@ -34,5 +34,6 @@ OUT_PR+="/edgeEpi_avrB_${timestamp}"
   -s "${SNP_FN}" \
   -f 0.05 \
   -d 1 \
+  -p 1000 \
   -n "${N_THREADS}" \
   -o "${OUT_PR}" \
