@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-09 14:13:20
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-08-11 17:04:52
+* @Last Modified time: 2019-08-13 09:06:30
 */
 
 
@@ -258,6 +258,10 @@ interval_map siniminFWER::intervals_depth_first(
 
     while (tau+len < mat.rows())
     {
+      if (max_length > 0 && len == max_length)
+      {
+        break;
+      }
       support = binary_or(mat.row(tau+len), support);
       len += 1;
       
