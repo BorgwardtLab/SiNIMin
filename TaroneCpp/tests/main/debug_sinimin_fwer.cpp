@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-04 17:19:08
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-09-17 11:43:08
+* @Last Modified time: 2019-09-17 11:44:14
 */
 
 // Include standard libs.
@@ -66,9 +66,9 @@ int main(int argc, char** argv)
   siniminFWER sinimin_fwer(dataset, edges, mapping, thresh, maxlen, 
                            N_PERM, encode_or);
   // Process the edges.
-  sinimin.process_edges();
+  sinimin_fwer.process_edges();
   
   // Write the tarone summary.
-  sinimin.tarone.write_summary(out_file);
+  sinimin_fwer.tarone.write_summary(out_file);
 
 }
