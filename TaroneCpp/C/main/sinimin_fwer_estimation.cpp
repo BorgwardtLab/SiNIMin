@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-04 17:19:08
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-08-11 17:05:32
+* @Last Modified time: 2019-09-17 11:42:19
 */
 
 // Include standard libs.
@@ -185,7 +185,7 @@ int main(int argc, char** argv)
   // Run the edge-epistasis method.
 
   double tic_mine = measureTime();
-  std::cout << "Estimation of FWER from " << n_perm << " permutations.";
+  std::cout << "Estimation of FWER (" << n_perm << " permutations).";
   std::cout << std::endl;
 
     
