@@ -1,0 +1,5 @@
+Total time: 1.46942secs.
+	 * Initialization: 0.044147secs.
+	 * Processing edges: 1.41696secs.
+
+Number of cores: 10

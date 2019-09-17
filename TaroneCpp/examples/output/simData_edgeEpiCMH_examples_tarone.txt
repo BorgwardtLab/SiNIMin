@@ -1,0 +1,16 @@
+Data set characteristics: 
+Number samples: 500
+Number cases: 238
+Number covariates: 2
+
+Covariate classes:
+covar_0: 122/276 (n_cases/n_samples)
+covar_1: 116/224 (n_cases/n_samples)
+
+Tarone results:
+Number testable: 1833
+Testability threshold: 2.39883e-05
+Testability index: 76
+Target fwer: 0.05
+Significance threshold: 2.72777e-05
+Number significant: 0
