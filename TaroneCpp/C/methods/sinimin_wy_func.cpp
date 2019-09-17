@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-09 14:13:20
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-09-17 11:46:00
+* @Last Modified time: 2019-09-17 11:54:19
 */
 
 
@@ -274,8 +274,6 @@ interval_map SiniminWY::intervals_depth_first(const Eigen::MatrixXd& mat)
 
     while (tau+len < mat.rows())
     {
-
-      std::cout << "Enumerating interval: " << tau << ", " << len << std::endl;
 
       // If the maximum length is reached, stop enumeration of intervals.
       if (max_length > 0 && len == max_length)
