@@ -1,7 +1,7 @@
 # @Author: guanja
 # @Date:   2019-07-10 14:50:08
 # @Last Modified by:   guanja
-# @Last Modified time: 2019-09-17 09:15:03
+# @Last Modified time: 2019-09-17 09:15:31
 
 
 ROOT="/home/guanja/projects/cpkgs/TaroneCpp/TaroneCpp"
@@ -28,7 +28,6 @@ OUT_PR="${ROOT}/examples/output/simData_edgeEpiCMH_examples"
   -s "${SNP_FN}" \
   -f 0.05 \
   -d 1 \
-  -r \
   -n "${N_THREADS}" \
   -o "${OUT_PR}" \
 
