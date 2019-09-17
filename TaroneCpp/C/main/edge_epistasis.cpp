@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-04 17:19:08
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-07-31 20:04:15
+* @Last Modified time: 2019-09-17 09:18:13
 */
 
 // Include standard libs.
@@ -236,9 +236,10 @@ int main(int argc, char** argv)
     std::cout << " sec." << std::endl << std::endl;
 
     // Filter the significant edges.
-    int n_significant = \
-        write_significant_edge_epi(edge_epistasis.tarone.corr_threshold(),
-                                   pvalue_file, significant_file);
+    // int n_significant = \
+    //     write_significant_edge_epi(edge_epistasis.tarone.corr_threshold(),
+    //                                pvalue_file, significant_file);
+    int n_significant = 0;
 
     // Write the tarone summary.
     edge_epistasis.tarone.write_summary(tarone_file, n_significant);
