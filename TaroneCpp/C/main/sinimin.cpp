@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-04 17:19:08
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-09-17 11:21:28
+* @Last Modified time: 2019-09-17 11:50:00
 */
 
 // Include standard libs.
@@ -27,7 +27,7 @@
 #include "../utils/output.cpp"
 
 #include "../methods/sinimin_func.cpp"
-#include "../methods/sinimin_func_wy.cpp"
+#include "../methods/sinimin_wy_func.cpp"
 
 
 
