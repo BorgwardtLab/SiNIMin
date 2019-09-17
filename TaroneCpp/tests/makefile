@@ -1,7 +1,10 @@
 all: base
 base:
-	g++-6 -std=c++11 -I/usr/local/include/eigen3 \
-		-o ./compiled/siniminFWER_test ./main/sinimin_fwer_test.cpp
+	g++ -std=c++11 -I/usr/local/include/eigen3 \
+		-o ./compiled/debug_fwer_estimation ./main/debug_fwer_estimation.cpp
+
+# 		g++-6 -std=c++11 -I/usr/local/include/eigen3 \
+# 		-o ./compiled/siniminFWER_test ./main/sinimin_fwer_test.cpp
 
 # 	g++ -std=c++11 -Wall -Wextra -pedantic  \
 # 		-o ./compiled/interval_test ./main/interval_test.cpp

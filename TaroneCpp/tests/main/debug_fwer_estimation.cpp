@@ -1,0 +1,67 @@
+/*
+* @Author: guanja
+* @Date:   2019-07-04 17:19:08
+* @Last Modified by:   guanja
+* @Last Modified time: 2019-09-17 08:58:44
+*/
+
+// Include standard libs.
+#include <iostream>
+#include <cstdlib>
+#include <string>
+#include <fstream>
+
+// Include C++ data classes.
+#include <deque>
+#include <vector>
+#include <set>
+#include <tuple>
+#include <unordered_map>
+
+
+
+#include "../../C/struct/data.cpp"
+#include "../../C/struct/edges.cpp"
+#include "../../C/struct/mapping.cpp"
+// #include "../../C/struct/tarone_cmh.cpp"
+// #include "../../C/struct/tarone_cmh_wy.cpp"
+#include "../../C/utils/utils.cpp"
+#include "../../C/methods/edge_epistasis_nowy.cpp"
+
+
+
+int main(int argc, char** argv)
+{
+
+  // input files.
+  std::string edg_file = "../../examples/sim_data/sim_ps_0.05_pcon_0.05_simID_0_edges.txt";
+  std::string map_file = "../../examples/data/sim_ps_0.05_pcon_0.05_simID_0_snp_map.txt";
+  std::string dat_file = "../../examples/data/sim_ps_0.05_pcon_0.05_simID_0_X.txt";
+  std::string lab_file = "../../examples/data/sim_ps_0.05_pcon_0.05_simID_0_Y.txt";
+  std::string cov_file = "../../examples/data/sim_ps_0.05_pcon_0.05_simID_0_C.txt";
+  std::string snp_file = "../../examples/data/sim_ps_0.05_pcon_0.05_simID_0_snpID.txt";
+
+  int maxlen = 0;
+  std::string out_file="sim_ps_0.05_pcon_0.05_simID_0";
+  bool encode_or=true;
+
+  // Read the data.
+  Data dataset(dat_file, lab_file, snp_file, cov_file);
+  
+  // Read the edges.                                      
+  Edges edges(edg_file);
+
+  // Read the mapping from SNPs to genes.
+  Mapping mapping(map_file);
+
+  // translate the mapping to the SNP-IDs that are provided with the data set.
+  mapping.translate_snp_ids(dataset.snp_ids);
+
+  // Init the edge-epistasis method.
+  EdgeEpistasis sinimin(dataset, edges, mapping, 0.05, maxlen,
+                               out_file, encode_or);
+
+  // Process the edges.
+  sinimin.process_edges();
+
+}
