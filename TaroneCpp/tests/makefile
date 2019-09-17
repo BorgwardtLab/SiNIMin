@@ -1,7 +1,10 @@
 all: base
 base:
 	g++ -std=c++11 -I/usr/local/include/eigen3 \
-		-o ./compiled/debug_siniminWY ./main/debug_siniminWY.cpp
+		-o ./compiled/debug_sinimin_fwer ./main/debug_sinimin_fwer.cpp
+
+# 	g++ -std=c++11 -I/usr/local/include/eigen3 \
+# 		-o ./compiled/debug_siniminWY ./main/debug_siniminWY.cpp
 
 # 		g++-6 -std=c++11 -I/usr/local/include/eigen3 \
 # 		-o ./compiled/siniminFWER_test ./main/sinimin_fwer_test.cpp
