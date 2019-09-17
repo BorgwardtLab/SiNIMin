@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-09 14:13:20
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-09-17 09:31:44
+* @Last Modified time: 2019-09-17 09:35:12
 */
 
 
@@ -422,7 +422,7 @@ void EdgeEpistasis::test_interval_combinations(interval_map gene_0_itvl,
       // Create the current interval.
       Interval interval_0 = Interval(tau_0, len_0);
 
-      std::cout << "Interval_0" << interval_0 << std::endl;
+      std::cout << "Interval_0: " << interval_0 << std::endl;
 
       // Continue if it is not present in the current list of intervals.
       if (gene_0_itvl.find(interval_0) == gene_0_itvl.end())
@@ -450,7 +450,7 @@ void EdgeEpistasis::test_interval_combinations(interval_map gene_0_itvl,
           // Create the current interval.
           Interval interval_1 = Interval(tau_1, len_1);
 
-          std::cout << "Interval_1" << interval_1 << std::endl;
+          std::cout << "Interval_1: " << interval_1 << std::endl;
 
           // Continue if it is not present in the current list of intervals.
           if (gene_1_itvl.find(interval_1) == gene_1_itvl.end())
