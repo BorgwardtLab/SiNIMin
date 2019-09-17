@@ -1,12 +1,12 @@
 # @Author: guanja
 # @Date:   2019-07-10 14:50:08
 # @Last Modified by:   guanja
-# @Last Modified time: 2019-09-17 11:51:22
+# @Last Modified time: 2019-09-17 11:52:45
 
 
 ROOT="/home/guanja/projects/cpkgs/TaroneCpp/TaroneCpp"
 
-EXEC="${ROOT}/compiled/edge_epistasis"
+EXEC="${ROOT}/compiled/sinimin"
 
 DAT_FN="${ROOT}/examples/sim_data/sim_ps_0.05_pcon_0.05_simID_0_X.txt"
 COV_FN="${ROOT}/examples/sim_data/sim_ps_0.05_pcon_0.05_simID_0_C.txt"
