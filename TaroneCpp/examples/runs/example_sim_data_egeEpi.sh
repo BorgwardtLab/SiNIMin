@@ -1,7 +1,7 @@
 # @Author: guanja
 # @Date:   2019-07-10 14:50:08
 # @Last Modified by:   guanja
-# @Last Modified time: 2019-09-17 09:12:55
+# @Last Modified time: 2019-09-17 09:13:50
 
 
 ROOT="/home/guanja/projects/cpkgs/TaroneCpp/TaroneCpp"
@@ -17,7 +17,7 @@ SNP_FN="${ROOT}/examples/data/sim_data/sim_ps_0.05_pcon_0.05_simID_0_snpID.txt"
 
 N_THREADS=2
 
-OUT_PR="${ROOT}/examples/sim_output/edgeEpiCMH_examples"
+OUT_PR="${ROOT}/examples/output/simData_edgeEpiCMH_examples"
 
 "${EXEC}" \
   -i "${DAT_FN}" \
