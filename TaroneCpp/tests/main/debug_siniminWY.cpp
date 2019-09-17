@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-04 17:19:08
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-09-17 11:25:21
+* @Last Modified time: 2019-09-17 11:28:20
 */
 
 // Include standard libs.
@@ -64,9 +64,10 @@ int main(int argc, char** argv)
   // Init the edge-epistasis method.
   SiniminWY sinimin(dataset, edges, mapping, 0.05, maxlen, N_PERM,
                     out_file, encode_or);
-
+  std::cout << "Setting sinimin up finished." << std::endl;
   // Process the edges.
   sinimin.process_edges();
+  
   // Write the tarone summary.
   sinimin.tarone.write_summary(tarone_file, 0);
   // Write the frequencies.
