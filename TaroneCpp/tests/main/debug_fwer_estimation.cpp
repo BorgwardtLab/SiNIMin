@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-04 17:19:08
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-09-17 08:58:44
+* @Last Modified time: 2019-09-17 09:03:27
 */
 
 // Include standard libs.
@@ -35,11 +35,11 @@ int main(int argc, char** argv)
 
   // input files.
   std::string edg_file = "../../examples/sim_data/sim_ps_0.05_pcon_0.05_simID_0_edges.txt";
-  std::string map_file = "../../examples/data/sim_ps_0.05_pcon_0.05_simID_0_snp_map.txt";
-  std::string dat_file = "../../examples/data/sim_ps_0.05_pcon_0.05_simID_0_X.txt";
-  std::string lab_file = "../../examples/data/sim_ps_0.05_pcon_0.05_simID_0_Y.txt";
-  std::string cov_file = "../../examples/data/sim_ps_0.05_pcon_0.05_simID_0_C.txt";
-  std::string snp_file = "../../examples/data/sim_ps_0.05_pcon_0.05_simID_0_snpID.txt";
+  std::string map_file = "../../examples/sim_data/sim_ps_0.05_pcon_0.05_simID_0_snp_map.txt";
+  std::string dat_file = "../../examples/sim_data/sim_ps_0.05_pcon_0.05_simID_0_X.txt";
+  std::string lab_file = "../../examples/sim_data/sim_ps_0.05_pcon_0.05_simID_0_Y.txt";
+  std::string cov_file = "../../examples/sim_data/sim_ps_0.05_pcon_0.05_simID_0_C.txt";
+  std::string snp_file = "../../examples/sim_data/sim_ps_0.05_pcon_0.05_simID_0_snpID.txt";
 
   int maxlen = 0;
   std::string out_file="sim_ps_0.05_pcon_0.05_simID_0";
