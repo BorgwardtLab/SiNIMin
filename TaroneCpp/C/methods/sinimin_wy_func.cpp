@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-09 14:13:20
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-09-17 11:20:06
+* @Last Modified time: 2019-09-17 11:29:45
 */
 
 
@@ -163,6 +163,8 @@ void SiniminWY::process_edges()
   out_stream << "p-value,min_pval,gene0,start0_len0,gene1,start1_len1"; 
   out_stream << std::endl;
 
+  std::cout << "here 1" << std::endl;
+
   for (int i=0; i<edges.n_edges; i++)
   {
 
@@ -202,7 +204,9 @@ void SiniminWY::process_edges()
     {
       gene_intervals[gene_1_int] = make_gene_intervals(gene_1_str);
       intervals_enumerated[gene_1_int] = 1;
-    }   
+    }
+
+    std::cout << "here 2" << std::endl;
 
     // Do the pairwise testing of all intervals in source/sink.
     test_interval_combinations(gene_intervals[gene_0_int],
