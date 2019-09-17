@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-04 17:19:08
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-09-17 09:06:01
+* @Last Modified time: 2019-09-17 09:06:23
 */
 
 // Include standard libs.
@@ -67,7 +67,7 @@ int main(int argc, char** argv)
   // Process the edges.
   sinimin.process_edges();
   // Write the tarone summary.
-  sinimin.tarone.write_summary(tarone_file, n_significant);
+  sinimin.tarone.write_summary(tarone_file, 0);
   // Write the frequencies.
   sinimin.tarone.write_frequencies(frequency_file);
 
