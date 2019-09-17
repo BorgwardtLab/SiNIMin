@@ -2,7 +2,7 @@
 * @Author: Anja Gumpinger
 * @Date:   2018-11-13 19:32:54
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-08-09 14:56:27
+* @Last Modified time: 2019-09-17 09:33:04
 */
 
 #ifndef _tarone_cmh_cpp_
@@ -272,6 +272,8 @@ void TaroneCMH::process_testable_spec(double min_pv)
 {
   // Compute the bucket index.
   int idx = bucket_idx(min_pv);
+
+  std::cout << "Bucket index: " << idx << std::endl;
 
   // Increase the count vector of testable items at the threshold.
   freq_counts[idx] += 1;

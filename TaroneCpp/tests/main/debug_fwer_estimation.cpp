@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-04 17:19:08
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-09-17 09:20:59
+* @Last Modified time: 2019-09-17 09:24:32
 */
 
 // Include standard libs.
@@ -23,9 +23,9 @@
 #include "../../C/struct/data.cpp"
 #include "../../C/struct/edges.cpp"
 #include "../../C/struct/mapping.cpp"
-// #include "../../C/struct/tarone_cmh.cpp"
-// #include "../../C/struct/tarone_cmh_wy.cpp"
+
 #include "../../C/utils/utils.cpp"
+
 #include "../../C/methods/edge_epistasis_nowy.cpp"
 
 
