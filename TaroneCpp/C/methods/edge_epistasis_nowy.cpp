@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-09 14:13:20
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-09-17 09:35:12
+* @Last Modified time: 2019-09-17 09:41:17
 */
 
 
@@ -467,6 +467,8 @@ void EdgeEpistasis::test_interval_combinations(interval_map gene_0_itvl,
           }else{
             support = binary_and(supp0, supp1);  
           }
+
+          std::cout << "Support: " << support << std::endl;
 
           // Create a boolean vector and see if this works better.
           std::vector<bool> supp_bool = make_bool_vec(support);       
