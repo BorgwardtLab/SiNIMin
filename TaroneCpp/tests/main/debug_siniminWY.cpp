@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-04 17:19:08
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-09-17 11:23:57
+* @Last Modified time: 2019-09-17 11:25:21
 */
 
 // Include standard libs.
@@ -26,7 +26,7 @@
 
 #include "../../C/utils/utils.cpp"
 
-#include "../../C/methods/sinimin_func.cpp"
+#include "../../C/methods/sinimin_wy_func.cpp"
 
 
 
@@ -42,6 +42,7 @@ int main(int argc, char** argv)
   std::string snp_file = "../../examples/sim_data/sim_ps_0.05_pcon_0.05_simID_0_snpID.txt";
 
   int maxlen = 1;
+  int N_PERM = 1000;
   std::string out_file="sim_ps_0.05_pcon_0.05_simID_0";
   std::string tarone_file = out_file + std::string("_tarone.txt");
   std::string frequency_file = out_file + std::string("_minpv_frequencies.txt");
@@ -61,8 +62,8 @@ int main(int argc, char** argv)
   mapping.translate_snp_ids(dataset.snp_ids);
 
   // Init the edge-epistasis method.
-  EdgeEpistasis sinimin(dataset, edges, mapping, 0.05, maxlen,
-                               out_file, encode_or);
+  SiniminWY sinimin(dataset, edges, mapping, 0.05, maxlen, N_PERM,
+                    out_file, encode_or);
 
   // Process the edges.
   sinimin.process_edges();
