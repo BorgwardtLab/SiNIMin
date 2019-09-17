@@ -2,15 +2,14 @@
 * @Author: guanja
 * @Date:   2019-07-09 14:13:20
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-09-17 09:41:17
+* @Last Modified time: 2019-09-17 11:20:06
 */
 
 
-#ifndef _edge_epistasis_cpp_
-#define _edge_epistasis_cpp_
+#ifndef _sinimin_wy_func_cpp_
+#define _sinimin_wy_func_cpp_
 
 #include <iostream>
-#include <iterator>
 
 
 // Include C++ data classes.
@@ -26,25 +25,19 @@
 #include "../struct/mapping.cpp"
 #include "../struct/interval.hpp"
 #include "../struct/support.hpp"
-
-#include "../struct/tarone_cmh.cpp"
+#include "../struct/tarone_cmh_wy.cpp"
 #include "../utils/utils.cpp"
-
 
 
 // Interval map, with keys indicating the starting position and length, values
 // correspond to the full support of the interval.
-
-// This should be replaced by Bastian's Interval class.
-// typedef std::unordered_map< std::string, Eigen::MatrixXd> interval_map;
-
 typedef std::unordered_map< Interval, Eigen::MatrixXd> interval_map;
 
 
 /*
   Main class to do the edge-epistasis analysis.
 */
-class EdgeEpistasis
+class SiniminWY
 {
 
   public:
@@ -62,23 +55,7 @@ class EdgeEpistasis
     Mapping mapping;
 
     // The Tarone object.
-    TaroneCMH tarone;
-
-    // -----------------------------------------------------------------------
-    // TMP: Include a counter to check for unique supports.
-    std::set<std::vector<int>> support_checker;
-    // TMP: Counter of how many supports have been computed from scratch.
-    long long support_counter = 0;
-
-    // unordered map that contains the minimum p-value, whether or not
-    // the support is prunable, and the p-value.
-    // vector: [min-pv, prunable (bool), pval]
-    std::unordered_map<std::string, Support> support_map;
-    std::unordered_map<std::vector<bool>, Support> support_map_2;
-
-    // count the number of support-evaluations.
-    int supp_eval_count = 0;
-    // -----------------------------------------------------------------------
+    TaroneCMHwy tarone;
 
     // The output file.
     std::string output_file;
@@ -86,13 +63,24 @@ class EdgeEpistasis
     // Whether or not interaction should be computed as the binary OR
     bool encode_or;
 
+    // -------------------------------------------------------------------------
+    // unordered map that contains the minimum p-value, whether or not
+    // the support is prunable, and the p-value.
+    // vector: [min-pv, prunable (bool), pval]
+    std::unordered_map<std::vector<bool>, Support> support_map;
+
+    // count the number of support-evaluations.
+    int supp_eval_count = 0;
+    int n_patterns = 0;
+    // -------------------------------------------------------------------------
+
     // Default constructor.
-    EdgeEpistasis() = default;
+    SiniminWY() = default;
 
     // Constructor with output filename.
-    EdgeEpistasis(Data data_obj, Edges edge_obj, Mapping map_obj, 
-                  double alpha, int maxlen, std::string filename, 
-                  bool do_encode_or);
+    SiniminWY(Data data_obj, Edges edge_obj, Mapping map_obj, 
+              double alpha, int maxlen, int n_perm, std::string filename,
+              bool do_encode_or);
 
     // Functions to run the mining.
     void process_edges();
@@ -118,11 +106,12 @@ class EdgeEpistasis
 /*
   Constructor.
 */
-EdgeEpistasis::EdgeEpistasis(Data data_obj, Edges edge_obj, Mapping map_obj, 
-                             double alpha, int maxlen=0,
-                             std::string output_filename="./edge_epistasis.csv",
-                             bool do_encode_or=true) 
+SiniminWY::SiniminWY(Data data_obj, Edges edge_obj, Mapping map_obj, 
+                     double alpha, int maxlen=0, int n_perm=1000,
+                     std::string out_file="./edge_epistasis.csv",
+                     bool do_encode_or=true) 
 {
+
   // Set input objects.
   max_length = maxlen;
   data = data_obj;
@@ -131,11 +120,11 @@ EdgeEpistasis::EdgeEpistasis(Data data_obj, Edges edge_obj, Mapping map_obj,
   encode_or = do_encode_or;
 
   // initialize the Tarone object.
-  TaroneCMH tmp_tarone(alpha, data.pt_samples, data.pt_cases);
+  TaroneCMHwy tmp_tarone(alpha, data.pt_samples, data.pt_cases, n_perm);
   tarone = tmp_tarone;
 
   // init the output filestream.
-  output_file = output_filename;
+  output_file = out_file;
 
   // write output message to indicate encoding of interactions.
   if (encode_or)
@@ -151,7 +140,7 @@ EdgeEpistasis::EdgeEpistasis(Data data_obj, Edges edge_obj, Mapping map_obj,
   Main function, processes edge-by-edge and tests all intervals in two 
   interacting genes.
 */
-void EdgeEpistasis::process_edges()
+void SiniminWY::process_edges()
 {
 
   // Unordered map to store the intervals. Each key will correspond to a gene,
@@ -194,7 +183,6 @@ void EdgeEpistasis::process_edges()
       intervals_enumerated[gene_0_int] = 9;
       continue;
     }
-
     if (mapping.geneview_map_idx.find(gene_1_str) == \
         mapping.geneview_map_idx.end())
     {
@@ -214,16 +202,22 @@ void EdgeEpistasis::process_edges()
     {
       gene_intervals[gene_1_int] = make_gene_intervals(gene_1_str);
       intervals_enumerated[gene_1_int] = 1;
-    }    
+    }   
 
     // Do the pairwise testing of all intervals in source/sink.
     test_interval_combinations(gene_intervals[gene_0_int],
                                gene_intervals[gene_1_int],
                                gene_0_str, gene_1_str,
                                out_stream);
+
   }
+
   std::cout << edges.n_edges << " edges processed. Finishing. " << std::endl;
+  std::cout << " Number of processed supports =  " << supp_eval_count << std::endl;
+  std::cout << " Number of all supports =  " << n_patterns << std::endl;
+  std::cout << " Size of supp_map =  " << support_map.size() << std::endl;
 }
+
 
 
 
@@ -238,7 +232,7 @@ void EdgeEpistasis::process_edges()
   check if this works without problems when combining intervals later on, when
   increasing the length of intervals, as I rely on the distance being '1').
 */
-interval_map EdgeEpistasis::make_gene_intervals(std::string gene_name)
+interval_map SiniminWY::make_gene_intervals(std::string gene_name)
 {
 
   // The SNP-ids.
@@ -248,12 +242,10 @@ interval_map EdgeEpistasis::make_gene_intervals(std::string gene_name)
   Eigen::MatrixXd tmp_matrix =  \
       data.matrix.block(snp_ids.front(), 0, snp_ids.size(), data.n_samples); 
 
-  // Find the intervals.
   interval_map gene_supports = intervals_depth_first(tmp_matrix);
 
   return gene_supports;
 }
-
 
 
 /*
@@ -263,8 +255,7 @@ interval_map EdgeEpistasis::make_gene_intervals(std::string gene_name)
   intervals once they become untestable and we can enumerate only closed
   intervals, i.e. those that actually change support when grown.
 */
-interval_map EdgeEpistasis::intervals_depth_first(
-    const Eigen::MatrixXd& mat)
+interval_map SiniminWY::intervals_depth_first(const Eigen::MatrixXd& mat)
 {
 
   interval_map intervals;
@@ -283,12 +274,13 @@ interval_map EdgeEpistasis::intervals_depth_first(
 
     while (tau+len < mat.rows())
     {
-      
+
+      // If the maximum length is reached, stop enumeration of intervals.
       if (max_length > 0 && len == max_length)
       {
         break;
       }
-
+      
       support = binary_or(mat.row(tau+len), support);
       len += 1;
       
@@ -320,81 +312,16 @@ interval_map EdgeEpistasis::intervals_depth_first(
 }
 
 
-
-
-// /*
-//   Tests all combinations of intervals between gene0 and gene1.
-// */
-// void EdgeEpistasis::test_interval_combinations(interval_map gene_0_itvl,
-//                                                interval_map gene_1_itvl,
-//                                                std::string gene_0_name,
-//                                                std::string gene_1_name,
-//                                                std::ofstream& out_file)
-// {
-
-//   for ( auto it0 = gene_0_itvl.begin(); it0 != gene_0_itvl.end(); ++it0 )
-//   {
-//     // Get the intervals in gene0.
-//     std::string key0 = it0->first;
-//     Eigen::MatrixXd supp0 = it0->second;
-
-//     for (auto it1=gene_1_itvl.begin(); it1!=gene_1_itvl.end(); ++it1)
-//     {
-//       // Get the intervals in gene1.
-//       std::string key1 = it1->first;
-//       Eigen::MatrixXd supp1 = it1->second;
-
-//       // Compute the binary support of the interaction of interval-supports.
-//       Eigen::MatrixXd support;
-//       if (encode_or == true)
-//       {
-//         support = binary_or(supp0, supp1);  
-//       }else{
-//         support = binary_and(supp0, supp1);  
-//       }
-
-//       // // -----------------------------------------------------------------------
-//       // // TMP: add the current support to the support checker.
-//       // Eigen::VectorXd sup(Eigen::Map<Eigen::VectorXd>(support.data(), 
-//       //                                                 support.cols()*support.rows()));
-//       // support_checker.insert(eigen_to_vec(sup));
-//       // support_counter += 1;
-//       // // -----------------------------------------------------------------------
-
-//       // Compute the per-table support and corresponding minimum p-value.
-//       Eigen::VectorXd pt_support = tarone.compute_per_table_support(support);
-//       double min_pv = tarone.compute_minpval(pt_support);
-
-//       // Here we do adapt the threshold.
-//       if (tarone.is_testable(min_pv))
-//       {
-//         tarone.process_testable(min_pv);
-//       }
-//       if (!tarone.is_prunable(pt_support)) 
-//       {
-//         // Compute the p-value.
-//         int a = tarone.compute_supported_cases(support, data.labels);
-//         double pvalue = tarone.compute_pval(a, pt_support);
-
-//         // Write the interval combination to the output directory.
-//         out_file << pvalue << "," << min_pv << "," << gene_0_name << ",";
-//         out_file << key0 << "," << gene_1_name << "," << key1 << std::endl;
-//       }
-//     }
-//   }
-// }
-
-
 /*
   Tests all combinations of intervals between gene0 and gene1.
   We explore the intervals in a depth-first manner, as this allows us to 
   exploit monotonicities in the support-space.
 */
-void EdgeEpistasis::test_interval_combinations(interval_map gene_0_itvl,
-                                               interval_map gene_1_itvl,
-                                               std::string gene_0_name,
-                                               std::string gene_1_name,
-                                               std::ofstream& out_file)
+void SiniminWY::test_interval_combinations(interval_map gene_0_itvl,
+                                           interval_map gene_1_itvl,
+                                           std::string gene_0_name,
+                                           std::string gene_1_name,
+                                           std::ofstream& out_file)
 {
 
   // Define the supports of the interval_0 and interval_1 and their 
@@ -422,8 +349,6 @@ void EdgeEpistasis::test_interval_combinations(interval_map gene_0_itvl,
       // Create the current interval.
       Interval interval_0 = Interval(tau_0, len_0);
 
-      std::cout << "Interval_0: " << interval_0 << std::endl;
-
       // Continue if it is not present in the current list of intervals.
       if (gene_0_itvl.find(interval_0) == gene_0_itvl.end())
       {
@@ -450,8 +375,6 @@ void EdgeEpistasis::test_interval_combinations(interval_map gene_0_itvl,
           // Create the current interval.
           Interval interval_1 = Interval(tau_1, len_1);
 
-          std::cout << "Interval_1: " << interval_1 << std::endl;
-
           // Continue if it is not present in the current list of intervals.
           if (gene_1_itvl.find(interval_1) == gene_1_itvl.end())
           {
@@ -468,15 +391,14 @@ void EdgeEpistasis::test_interval_combinations(interval_map gene_0_itvl,
             support = binary_and(supp0, supp1);  
           }
 
-          std::cout << "Support: " << support << std::endl;
+          // Create a boolean vector (faster hashing in map).
+          std::vector<bool> supp_bool = make_bool_vec(support);
 
-          // Create a boolean vector and see if this works better.
-          std::vector<bool> supp_bool = make_bool_vec(support);       
+          n_patterns += 1;
 
           // -------------------------------------------------------------------
           // If the current support has not been observed yet, process it.
-          // if (support_map.find(bitstring) == support_map.end())
-          if (support_map_2.find(supp_bool) == support_map_2.end())
+          if (support_map.find(supp_bool) == support_map.end())
           {
             supp_eval_count += 1;
             // compute the per-table support.
@@ -499,40 +421,40 @@ void EdgeEpistasis::test_interval_combinations(interval_map gene_0_itvl,
 
             // create the support object and store it in the support map.
             Support tmp_sup(min_pv, evlpe, pvalue);
-            // support_map[bitstring] = tmp_sup;
-            support_map_2[supp_bool] = tmp_sup;
+            support_map[supp_bool] = tmp_sup;
+
+            // Now, for the WY permutations, we only need to do the 
+            // permutations for patterns we have not seen so far.
+            if (tarone.is_testable(min_pv))
+            {
+              tarone.process_testable(pt_support, support);
+            }
           }
+
 
           // -------------------------------------------------------------------
           // Compute the per-table support and corresponding minimum p-value.
-          // Support sup_summary = support_map[bitstring];
-          Support sup_summary = support_map_2[supp_bool];
+          Support sup_summary = support_map[supp_bool];
 
-          std::cout << "Minimum p-value: " << sup_summary.min_pvalue() << std::endl;
-
-
-          if (tarone.is_testable(sup_summary.min_pvalue()))
-          {
-            tarone.process_testable(sup_summary.min_pvalue());
-          }
           if (!tarone.is_prunable(sup_summary.envelope())) 
           {
-            // Write the interval combination to the output directory.
-            out_file << sup_summary.pvalue() << ",";
-            out_file << sup_summary.min_pvalue() << "," << gene_0_name << ",";
-            out_file << interval_0 << "," << gene_1_name << "," << interval_1;
-            out_file << std::endl;
+          // Write the interval combination to the output directory.
+          out_file << sup_summary.pvalue() << ",";
+          out_file << sup_summary.min_pvalue() << "," << gene_0_name << ",";
+          out_file << interval_0 << "," << gene_1_name << "," << interval_1;
+          out_file << std::endl;
           }else{
-            // If the pattern is prunable, we mark the length in the prunable
-            // vector at that starting point for the current interval_0 with
-            // starting point in tau_0.
-            prunable[tau_1] = len_1;
+          // If the pattern is prunable, we mark the length in the prunable
+          // vector at that starting point for the current interval_0 with
+          // starting point in tau_0.
+          prunable[tau_1] = len_1;
           }
         }
       }
     }
   }
 }
+
 
 #endif
 

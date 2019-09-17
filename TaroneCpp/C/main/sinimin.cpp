@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-04 17:19:08
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-09-17 09:18:13
+* @Last Modified time: 2019-09-17 11:21:28
 */
 
 // Include standard libs.
@@ -26,8 +26,8 @@
 #include "../utils/utils.cpp"
 #include "../utils/output.cpp"
 
-#include "../methods/edge_epistasis_nowy.cpp"
-#include "../methods/edge_epistasis_wy.cpp"
+#include "../methods/sinimin_func.cpp"
+#include "../methods/sinimin_func_wy.cpp"
 
 
 
@@ -192,22 +192,31 @@ int main(int argc, char** argv)
   std::cout << "Time elapsed: " << timer.io << " sec." << std::endl; 
   std::cout << std::endl;
 
+  // ---------------------------------------------------------------------------
+  // Print the specs of the run.
+  if (max_interval_dim == 0)
+  {
+    std::cout << "Maximum interval length: unlimited." << std::endl;
+  }else{
+    std::cout << "Maximum interval length: " << max_interval_dim << ".";
+    std::cout << std::endl;
+  }
+
 
   // ---------------------------------------------------------------------------
   // Run the edge-epistasis method.
-
   double tic_mine = measureTime();
-  std::cout << "Running EdgeEpistasis." << std::endl;
+  std::cout << "Starting Interaction Mining." << std::endl;
 
   // If n_perm is set to a value larger than 0, WY-permutations will be run.
   if (n_perm > 0)
   {
-    std::cout << "Permutation testing with " << n_perm << " permutations.";
+    std::cout << "Permutation testing (" << n_perm << " permutations).";
     std::cout << std::endl;
-    EdgeEpistasisWY edge_epistasis(dataset, edges, mapping, target_fwer, 
+    SiniminWY sinimin(dataset, edges, mapping, target_fwer, 
                                    max_interval_dim, n_perm, pvalue_file,
                                    encode_or);
-    edge_epistasis.process_edges();
+    sinimin.process_edges();
 
     timer.proc_edge = measureTime() - tic_mine;
     std::cout << "Time elapsed: " << timer.proc_edge;
@@ -215,11 +224,11 @@ int main(int argc, char** argv)
 
     // Filter the significant edges.
     int n_significant = \
-        write_significant_edge_epi(edge_epistasis.tarone.corr_threshold(),
+        write_significant_edge_epi(sinimin.tarone.corr_threshold(),
                                    pvalue_file, significant_file);
 
     // Write the tarone summary.
-    edge_epistasis.tarone.write_summary(tarone_file, n_significant);
+    sinimin.tarone.write_summary(tarone_file, n_significant);
 
   }
 
@@ -227,25 +236,24 @@ int main(int argc, char** argv)
   if (n_perm == 0)
   {
     std::cout << "No permutation testing." << std::endl;
-    EdgeEpistasis edge_epistasis(dataset, edges, mapping, target_fwer, 
+    Sinimin sinimin(dataset, edges, mapping, target_fwer, 
                                  max_interval_dim, pvalue_file, encode_or);
-    edge_epistasis.process_edges();
+    sinimin.process_edges();
 
     timer.proc_edge = measureTime() - tic_mine;
     std::cout << "Time elapsed: " << timer.proc_edge;
     std::cout << " sec." << std::endl << std::endl;
 
     // Filter the significant edges.
-    // int n_significant = \
-    //     write_significant_edge_epi(edge_epistasis.tarone.corr_threshold(),
-    //                                pvalue_file, significant_file);
-    int n_significant = 0;
+    int n_significant = \
+        write_significant_edge_epi(sinimin.tarone.corr_threshold(),
+                                   pvalue_file, significant_file);
 
     // Write the tarone summary.
-    edge_epistasis.tarone.write_summary(tarone_file, n_significant);
+    sinimin.tarone.write_summary(tarone_file, n_significant);
 
     // Write the frequencies.
-    edge_epistasis.tarone.write_frequencies(frequency_file);
+    sinimin.tarone.write_frequencies(frequency_file);
 
   }
 
