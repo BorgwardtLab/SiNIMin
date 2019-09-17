@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-04 17:19:08
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-09-17 09:03:27
+* @Last Modified time: 2019-09-17 09:06:01
 */
 
 // Include standard libs.
@@ -43,6 +43,9 @@ int main(int argc, char** argv)
 
   int maxlen = 0;
   std::string out_file="sim_ps_0.05_pcon_0.05_simID_0";
+  tarone_file = out_file + std::string("_tarone.txt");
+  frequency_file = out_file + std::string("_minpv_frequencies.txt");
+
   bool encode_or=true;
 
   // Read the data.
@@ -63,5 +66,9 @@ int main(int argc, char** argv)
 
   // Process the edges.
   sinimin.process_edges();
+  // Write the tarone summary.
+  sinimin.tarone.write_summary(tarone_file, n_significant);
+  // Write the frequencies.
+  sinimin.tarone.write_frequencies(frequency_file);
 
 }
