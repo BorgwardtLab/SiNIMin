@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-04 17:19:08
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-09-17 09:07:12
+* @Last Modified time: 2019-09-17 09:20:59
 */
 
 // Include standard libs.
@@ -41,7 +41,7 @@ int main(int argc, char** argv)
   std::string cov_file = "../../examples/sim_data/sim_ps_0.05_pcon_0.05_simID_0_C.txt";
   std::string snp_file = "../../examples/sim_data/sim_ps_0.05_pcon_0.05_simID_0_snpID.txt";
 
-  int maxlen = 0;
+  int maxlen = 1;
   std::string out_file="sim_ps_0.05_pcon_0.05_simID_0";
   std::string tarone_file = out_file + std::string("_tarone.txt");
   std::string frequency_file = out_file + std::string("_minpv_frequencies.txt");
