@@ -2,7 +2,7 @@
 * @Author: guanja
 * @Date:   2019-07-09 14:13:20
 * @Last Modified by:   guanja
-* @Last Modified time: 2019-09-17 11:19:34
+* @Last Modified time: 2019-09-18 16:14:39
 */
 
 
@@ -358,8 +358,6 @@ void Sinimin::test_interval_combinations(interval_map gene_0_itvl,
       // Create the current interval.
       Interval interval_0 = Interval(tau_0, len_0);
 
-      std::cout << "Interval_0: " << interval_0 << std::endl;
-
       // Continue if it is not present in the current list of intervals.
       if (gene_0_itvl.find(interval_0) == gene_0_itvl.end())
       {
@@ -386,8 +384,6 @@ void Sinimin::test_interval_combinations(interval_map gene_0_itvl,
           // Create the current interval.
           Interval interval_1 = Interval(tau_1, len_1);
 
-          std::cout << "Interval_1: " << interval_1 << std::endl;
-
           // Continue if it is not present in the current list of intervals.
           if (gene_1_itvl.find(interval_1) == gene_1_itvl.end())
           {
@@ -403,8 +399,6 @@ void Sinimin::test_interval_combinations(interval_map gene_0_itvl,
           }else{
             support = binary_and(supp0, supp1);  
           }
-
-          std::cout << "Support: " << support << std::endl;
 
           // Create a boolean vector and see if this works better.
           std::vector<bool> supp_bool = make_bool_vec(support);       
@@ -443,9 +437,6 @@ void Sinimin::test_interval_combinations(interval_map gene_0_itvl,
           // Compute the per-table support and corresponding minimum p-value.
           // Support sup_summary = support_map[bitstring];
           Support sup_summary = support_map_2[supp_bool];
-
-          std::cout << "Minimum p-value: " << sup_summary.min_pvalue() << std::endl;
-
 
           if (tarone.is_testable(sup_summary.min_pvalue()))
           {
