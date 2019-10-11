@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # @Author: guanja
 # @Date:   2019-07-11 09:22:29
-# @Last Modified by:   guanja
-# @Last Modified time: 2019-07-11 09:51:57
+# @Last Modified by:   Anja Gumpinger
+# @Last Modified time: 2019-10-11 09:29:18
 
 import argparse
 import logging
@@ -12,7 +12,7 @@ import pdb
 import numpy as np
 import pandas as pd
 
-from genetics import genes
+from sinimin_utils import genes
 
 
 logging.basicConfig(level='INFO', format='.. %(message)s')
