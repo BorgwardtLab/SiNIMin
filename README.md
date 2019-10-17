@@ -50,3 +50,6 @@ There exist additional flags that can be set, namely:
 The `-d` flag toggles the maximum length of intervals to be tested. For example, if `d` is set to 1, only interactions between single features are tested.
 The `-p` flag toggles the number of permutations. If this flag is set, SiNIMin-WY is executed, i.e. Westfall-Young permutations are used to estimate family-wise error rates.
 The `-n` flag sets the number of processes. This parameter only results in a speed-up for permutation testing. `sinimin` uses OMP to parallelize.
+
+## Contact
+anja.gumpinger@bsse.ethz.ch
