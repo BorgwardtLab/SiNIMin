@@ -26,8 +26,8 @@ OpenMP is used for parallelization of permutation testing.
 
 ### Example usage.
 
-An example on how to use the code can be found in the examples folder.
-The executable for the method is called `sinimin` and can be found in the _SiNIMin/compiled_.
+Examples on how to execute the methods SiNIMin and SiNIMin-WY can be found in _examples/runs_ with corresponding data in _examples/data_.
+The executable for both methods is called `sinimin` and can be found in _SiNIMin/compiled_.
 
 ```bash
 ./sinimin \
