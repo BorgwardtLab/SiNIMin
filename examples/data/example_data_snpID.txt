@@ -301,15 +301,3 @@ snp_299
 snp_300
 snp_301
 snp_302
-snp_303
-snp_304
-snp_305
-snp_306
-snp_307
-snp_308
-snp_309
-snp_310
-snp_311
-snp_312
-snp_313
-snp_314

@@ -1,9 +1,0 @@
-geneE geneB
-geneA geneA
-geneA geneB
-geneA geneC
-geneA geneD
-geneB geneA
-geneB geneC
-geneC geneA
-geneD geneA

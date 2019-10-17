@@ -1,3 +1,0 @@
-              gene1     snp1 len1   gene2     snp2 len2  pvalueCMH pvalueFisher
-significant  gene17   snp_78    3  gene65  snp_279    3  0.0157041    0.0155333
-confounded   gene35  snp_154    2  gene57  snp_250    4   0.955819     0.150275

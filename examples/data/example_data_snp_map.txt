@@ -1,0 +1,75 @@
+gene0 snp_0 snp_1 snp_2
+gene1 snp_2 snp_3 snp_4 snp_5 snp_6 snp_7
+gene2 snp_8
+gene3 snp_9 snp_10 snp_11 snp_12 snp_13 snp_14
+gene4 snp_15 snp_16 snp_17 snp_18 snp_19 snp_20 snp_21
+gene5 snp_22
+gene6 snp_23 snp_24 snp_25 snp_26 snp_27 snp_28 snp_29 snp_30
+gene7 snp_30 snp_31 snp_32 snp_33 snp_34 snp_35
+gene8 snp_36 snp_37 snp_38 snp_39
+gene9 snp_40 snp_41 snp_42 snp_43 snp_44 snp_45
+gene10 snp_46 snp_47 snp_48 snp_49 snp_50 snp_51 snp_52 snp_53
+gene11 snp_54 snp_55 snp_56 snp_57 snp_58 snp_59
+gene12 snp_59 snp_60
+gene13 snp_61 snp_62 snp_63 snp_64
+gene14 snp_65 snp_66
+gene15 snp_67 snp_68 snp_69 snp_70 snp_71 snp_72 snp_73 snp_74
+gene16 snp_74
+gene17 snp_75 snp_76
+gene18 snp_77 snp_78 snp_79 snp_80 snp_81
+gene19 snp_81 snp_82 snp_83 snp_84 snp_85 snp_86 snp_87 snp_88
+gene20 snp_89 snp_90 snp_91 snp_92
+gene21 snp_92 snp_93 snp_94 snp_95 snp_96
+gene22 snp_95
+gene23 snp_96 snp_97 snp_98 snp_99 snp_100 snp_101 snp_102
+gene24 snp_101 snp_102 snp_103 snp_104
+gene25 snp_105 snp_106 snp_107 snp_108
+gene26 snp_108 snp_109 snp_110
+gene27 snp_110 snp_111 snp_112 snp_113 snp_114 snp_115 snp_116
+gene28 snp_117 snp_118 snp_119
+gene29 snp_119
+gene30 snp_120 snp_121 snp_122 snp_123 snp_124 snp_125
+gene31 snp_126 snp_127 snp_128
+gene32 snp_129
+gene33 snp_130
+gene34 snp_131 snp_132
+gene35 snp_133
+gene36 snp_134 snp_135 snp_136 snp_137 snp_138
+gene37 snp_139 snp_140
+gene38 snp_141 snp_142 snp_143 snp_144 snp_145
+gene39 snp_145 snp_146 snp_147 snp_148 snp_149 snp_150 snp_151
+gene40 snp_152 snp_153 snp_154 snp_155 snp_156 snp_157 snp_158 snp_159 snp_160
+gene41 snp_161 snp_162 snp_163 snp_164 snp_165 snp_166 snp_167 snp_168 snp_169
+gene42 snp_170 snp_171
+gene43 snp_172 snp_173 snp_174 snp_175 snp_176 snp_177 snp_178 snp_179
+gene44 snp_178 snp_179 snp_180 snp_181 snp_182 snp_183 snp_184 snp_185
+gene45 snp_186
+gene46 snp_187 snp_188 snp_189 snp_190 snp_191 snp_192 snp_193 snp_194
+gene47 snp_195 snp_196
+gene48 snp_197 snp_198 snp_199
+gene49 snp_199 snp_200 snp_201 snp_202 snp_203 snp_204 snp_205 snp_206 snp_207
+gene50 snp_208 snp_209 snp_210
+gene51 snp_211 snp_212
+gene52 snp_213 snp_214
+gene53 snp_215 snp_216 snp_217 snp_218 snp_219 snp_220
+gene54 snp_219 snp_220 snp_221 snp_222 snp_223 snp_224 snp_225 snp_226
+gene55 snp_227 snp_228 snp_229
+gene56 snp_230 snp_231 snp_232 snp_233 snp_234 snp_235 snp_236 snp_237
+gene57 snp_238 snp_239
+gene58 snp_240 snp_241
+gene59 snp_242 snp_243 snp_244 snp_245 snp_246 snp_247 snp_248 snp_249 snp_250
+gene60 snp_247 snp_248 snp_249 snp_250 snp_251 snp_252
+gene61 snp_253 snp_254
+gene62 snp_255 snp_256 snp_257 snp_258
+gene63 snp_259 snp_260 snp_261 snp_262 snp_263
+gene64 snp_262 snp_263 snp_264 snp_265 snp_266
+gene65 snp_267 snp_268 snp_269
+gene66 snp_270 snp_271 snp_272 snp_273 snp_274 snp_275 snp_276
+gene67 snp_274 snp_275 snp_276
+gene68 snp_277
+gene69 snp_278
+gene70 snp_279
+gene71 snp_280 snp_281 snp_282 snp_283 snp_284 snp_285 snp_286
+gene72 snp_287 snp_288 snp_289 snp_290 snp_291
+gene73 snp_292 snp_293 snp_294 snp_295 snp_296 snp_297 snp_298
+gene74 snp_296 snp_297 snp_298 snp_299 snp_300 snp_301 snp_302

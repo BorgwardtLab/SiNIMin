@@ -1,0 +1,3 @@
+              gene1     snp1 len1   gene2     snp2 len2    pvalueCMH pvalueFisher
+significant  gene11   snp_54    2  gene54  snp_222    4  5.84454e-37  1.17074e-33
+confounded   gene27  snp_115    2  gene40  snp_154    4  3.54748e-05   5.9402e-25
