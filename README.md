@@ -1,9 +1,9 @@
 # SiNIMin
 
-This repository contains the code for the *significant Network Interval Mining* approach, short SiNIMin, described in _Network-guided detection of candidate intervals that exhibit genetic heterogeneity_ (under review).
+This repository contains the code for the *significant Network Interval Mining* approach, short SiNIMin, and its permutation-testing based counterpart SiNIMin-WY. The methods are described in _Network-guided detection of candidate intervals that exhibit genetic heterogeneity_ (under review).
 
 
-## Data formatting.
+## Data formatting
 
 Assuming we are given a data set of n samples with d binary features. An example of all files can be found in the folder _examples_.
 
@@ -24,7 +24,7 @@ The method requires the following input:
 Note that the package relies on the Eigen-library. This library has to be linked upon re-compilation of the method.
 OpenMP is used for parallelization of permutation testing.
 
-### Example usage.
+### Example usage
 
 Examples on how to execute the methods SiNIMin and SiNIMin-WY can be found in _examples/runs_ with corresponding data in _examples/data_.
 The executable for both methods is called `sinimin` and can be found in _SiNIMin/compiled_.
@@ -51,5 +51,5 @@ The `-d` flag toggles the maximum length of intervals to be tested. For example,
 The `-p` flag toggles the number of permutations. If this flag is set, SiNIMin-WY is executed, i.e. Westfall-Young permutations are used to estimate family-wise error rates.
 The `-n` flag sets the number of processes. This parameter only results in a speed-up for permutation testing. `sinimin` uses OMP to parallelize.
 
-## Contact
+# Contact
 anja.gumpinger@bsse.ethz.ch
