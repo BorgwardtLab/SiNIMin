@@ -1,6 +1,6 @@
 # SiNIMin
 
-This repository contains the code for the *significant Network Interval Mining* approach, short SiNIMin, and its permutation-testing based counterpart SiNIMin-WY. The methods are described in _Network-guided detection of candidate intervals that exhibit genetic heterogeneity_ (under review).
+This repository contains the code for the <b>Si</b>gnificant <b>N</b>etwork <b>I</b>nterval <b>Min</b>ing approach, short SiNIMin, and its permutation-testing based counterpart SiNIMin-WY. The methods are described in _Network-guided detection of candidate intervals that exhibit genetic heterogeneity_ (under review).
 
 
 ## Data formatting
