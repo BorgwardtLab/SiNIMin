@@ -20,9 +20,47 @@ The method requires the following input:
 
 ## Usage information
 
-### Compilation
+### Compilation (manual)
+
 Note that the package relies on the Eigen-library. This library has to be linked upon re-compilation of the method.
 OpenMP is used for parallelization of permutation testing.
+
+### Compilation (CMake)
+
+Another way to compile the package involves compiling it using `cmake`.
+For Mac OS X, we recommend installing the following packages using
+[Homebrew](https://brew.sh):
+
+    $ brew install cmake gcc eigen
+
+After cloning this repository, the following steps are required to
+compile the package:
+
+    $ cd SiNIMin/C
+    $ mkdir build
+    $ cd build
+    $ cmake -DCMAKE_CXX_COMPILER=g++-9 ../
+    $ make
+
+Optionally, the compiler version can also be changed if a more recent
+compiler is present. Compiling the package with the Apple version of the
+`clang` compiler (which is sometimes confusingly also present as `g++`
+in the system) currently does *not* work.
+
+Having compiled the package, it can optionally be installed by issuing
+
+    $ make install
+
+from the `build` directory created above.
+
+### Installation using Homebrew (Mac OS X )
+
+For Mac OS X, we recommend installing the package using the [Homebrew](https://brew.sh)
+package manager:
+
+    $ brew install BorgwardtLab/mlcb/sinimin
+
+Afterwards, the package can be automatically used on the command-line.
 
 ### Example usage
 
