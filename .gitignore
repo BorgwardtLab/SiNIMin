@@ -1,3 +1,8 @@
+*.o
+*.swp
+
+build/
+
 examples/output
 
 SiNIMin/tests
