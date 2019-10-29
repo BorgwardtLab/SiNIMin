@@ -22,8 +22,18 @@ The method requires the following input:
 
 ### Compilation (manual)
 
-Note that the package relies on the Eigen-library. This library has to be linked upon re-compilation of the method.
-OpenMP is used for parallelization of permutation testing.
+Note that the package relies on the Eigen-library. This library has to
+be linked upon re-compilation of the method.  OpenMP is used for
+parallelization of permutation testing.
+
+We provide a `Makefile` that may have to be adjusted for the compilation
+to work. You can compile the program using the following steps:
+
+    $ cd SiNIMin/C
+    $ make
+
+If the compile step does not work, please try adjusting the compiler
+settings in the `Makefile` or use another compilation method.
 
 ### Compilation (CMake)
 
@@ -88,6 +98,14 @@ There exist additional flags that can be set, namely:
 The `-d` flag toggles the maximum length of intervals to be tested. For example, if `d` is set to 1, only interactions between single features are tested.
 The `-p` flag toggles the number of permutations. If this flag is set, SiNIMin-WY is executed, i.e. Westfall-Young permutations are used to estimate family-wise error rates.
 The `-n` flag sets the number of processes. This parameter only results in a speed-up for permutation testing. `sinimin` uses OMP to parallelize.
+
+# Help
+
+If you have questions concerning SiNIMin or you encounter problems when
+trying to build the tool under your own system, please open an issue in
+[the issue tracker](https://github.com/BorgwardtLab/SiNIMin/issues). Try to
+describe the issue in sufficient detail in order to make it possible for
+us to help you.
 
 # Contact
 anja.gumpinger@bsse.ethz.ch
