@@ -1,0 +1,19 @@
+CMAKE_MINIMUM_REQUIRED( VERSION 3.0 )
+PROJECT( SiNIMin )
+
+SET( CMAKE_CXX_STANDARD 11 )
+SET( CMAKE_CXX_STANDARD_REQUIRED ON )
+
+FIND_PACKAGE( Eigen3 REQUIRED )
+FIND_PACKAGE( OpenMP COMPONENTS CXX REQUIRED )
+
+ADD_EXECUTABLE( sinimin
+  main/sinimin.cpp
+)
+
+ADD_EXECUTABLE( sinimin_fwer
+  main/sinimin_fwer_estimation.cpp
+)
+
+TARGET_LINK_LIBRARIES( sinimin Eigen3::Eigen OpenMP::OpenMP_CXX)
+TARGET_LINK_LIBRARIES( sinimin_fwer Eigen3::Eigen OpenMP::OpenMP_CXX)
