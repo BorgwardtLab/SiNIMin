@@ -20,7 +20,12 @@ TARGET_COMPILE_OPTIONS( sinimin_fwer PUBLIC "-O5" )
 TARGET_LINK_LIBRARIES( sinimin      Eigen3::Eigen OpenMP::OpenMP_CXX )
 TARGET_LINK_LIBRARIES( sinimin_fwer Eigen3::Eigen OpenMP::OpenMP_CXX )
 
-INSTALL( TARGETS sinimin sinimin_fwer
+INSTALL( TARGETS sinimin
+  RUNTIME
+  DESTINATION bin
+)
+
+INSTALL( TARGETS sinimin_fwer
   RUNTIME
   DESTINATION bin
 )
