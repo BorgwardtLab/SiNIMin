@@ -68,7 +68,7 @@ from the `build` directory created above.
 For Mac OS X, we recommend installing the package using the [Homebrew](https://brew.sh)
 package manager:
 
-    $ brew install BorgwardtLab/mlcb/sinimin
+    $ brew install --cc=gcc BorgwardtLab/mlcb/sinimin
 
 Afterwards, the package can be automatically used on the command-line.
 
