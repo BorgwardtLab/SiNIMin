@@ -12,7 +12,10 @@
 #include <string>
 #include <fstream>
 
-// filter significant files from a pvalues.cvs file.
+
+/*
+  filter significant files from a pvalues.cvs file.
+*/
 int write_significant_edge_epi(double threshold, 
                                std::string input_filename, 
                                std::string output_filename);
