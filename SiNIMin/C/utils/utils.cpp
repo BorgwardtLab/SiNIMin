@@ -72,6 +72,9 @@ double alpha_quantile(std::vector<double> vec, double alpha);
 
 /* Functions. */
 
+/*
+  Print vector.
+*/
 template <typename T>
 void print_vector(std::vector<T> vec){
   for(auto i: vec) 
@@ -82,6 +85,9 @@ void print_vector(std::vector<T> vec){
 }
 
 
+/*
+  Print nested vector.
+*/
 template <typename T>
 void print_nested_vector(std::vector<std::vector<T>> nvec){
   for(auto i: nvec) 
@@ -91,7 +97,9 @@ void print_nested_vector(std::vector<std::vector<T>> nvec){
   std::cout << std::endl;
 }
 
-
+/*
+  Print map.
+*/
 template <typename T>
 void print_map(std::unordered_map<std::string, T> map){
   for (std::pair<std::string, T> element : map)
@@ -101,7 +109,9 @@ void print_map(std::unordered_map<std::string, T> map){
 }
 
 
-// function to print a map.
+/*
+  Print map.
+*/
 template <typename T>
 void print_map_vector(std::unordered_map<std::string, std::vector<T>> map)
 {
@@ -117,7 +127,9 @@ void print_map_vector(std::unordered_map<std::string, std::vector<T>> map)
 }
 
 
-
+/*
+  Check if key in map. 
+*/
 bool check_key(std::unordered_map<std::string, int> m, std::string k){
   if (m.find(k) == m.end()) 
   {
@@ -147,7 +159,6 @@ std::vector<int> argsort(const std::vector<T> & unsorted){
 /*
   Transform an Eigen::VectorXd to a std::vector.
 */
-
 std::vector<int> eigen_to_vec(const Eigen::VectorXd& x)
 {
   std::vector<int> y;
@@ -231,7 +242,6 @@ Eigen::MatrixXd binary_and(Eigen::MatrixXd vec0, Eigen::MatrixXd vec1)
 }
 
 
-
 /*
   creates a boolean vector from a Eigen::MatrixXd.
 */ 
@@ -246,12 +256,9 @@ std::vector<bool> make_bool_vec(const Eigen::MatrixXd& x)
 }
     
 
-
-
 /*
   Check if an input-file exists. Throw an error if not.
 */
-
 void check_file(std::string filename){
   std::ifstream f(filename);
   if (!f.is_open()){
