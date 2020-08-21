@@ -7,7 +7,7 @@
 import argparse
 import logging
 import os
-import pdb
+import ipdb
 
 import numpy as np
 import pandas as pd
@@ -48,7 +48,7 @@ def main():
 
 
   for idx, row in df.iterrows():
-    
+
     # get the starting SNP of the interval in the first gene.
     int0 = [int(x) for x in row.interval0.split('_')]
     start0 = mapping_geneview[row.gene0][int0[0]]
