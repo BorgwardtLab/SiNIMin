@@ -161,8 +161,6 @@ void Edges::remove_duplicate_edges(){
 */
 void Edges::create_str_int_maps(){
 
-  // this part is super slow.
-
   int current_count = 0;
 
   for(int i=0; i<nodes_str.size(); i++)

@@ -304,7 +304,6 @@ interval_map Sinimin::intervals_depth_first(const Eigen::MatrixXd& mat)
       // Compute the per-table support and minimum p-value.
       Eigen::VectorXd pt_support = \
         tarone.compute_per_table_support(support);
-      // double min_pv = tarone.compute_minpval(pt_support);
 
       // Check if the support is prunable. If it is, we do not enumerate any
       // super-intervals.

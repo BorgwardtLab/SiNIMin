@@ -286,11 +286,10 @@ void TaroneCMH::process_testable_spec(double min_pv)
 
 
 /*
-  Function to decrease threshold and update the W-shape parameters.
+  Function to decrease threshold.
 */
 void TaroneCMH::decrease_threshold()
 {
-  // increase the pointer by one, thereby lowering the threshold.
   idx_t += 1; 
 }
 
@@ -309,8 +308,9 @@ bool TaroneCMH::is_testable(double min_pv)
   return false;
 }
 
-
-// function to determine whether the envelope of a pattern is prunable.
+/*
+ Determines whether the envelope of a pattern is prunable.
+*/
 bool TaroneCMH::is_prunable(double envelope)
 {
   if (envelope > delta_t()) 
